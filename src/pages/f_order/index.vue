@@ -25,17 +25,17 @@
                     </view>
                 </view>
                 <view class="goodsdetail" @tap="toOrderDetail(itemBox.id,itemBox.ordType)" wx:for="{{itemBox.itemList}}" wx:for-item="item">
-                    <image class="img" src="{{item.sku.product.imageList[0].url}}"></image>
+                    <image class="img" src="{{item.snapshotEntity.product.imageList[0].url}}"></image>
                     <view class="txt">
                         <view class="txt-top">
-                            <view class="left">{{item.sku.product.name}}</view>
+                            <view class="left">{{item.snapshotEntity.product.name}}</view>
                             <view class="right">
                                 <view class="t">￥{{item.presentPrice}}</view>
                             </view>
                         </view>
                         <view class="txt-bottom">
                             <view class="left">
-	                        	<view class="l_size" wx:for="{{item.sku.salePropertyList}}" wx:for-item="itemBox">
+	                        	<view class="l_size" wx:for="{{item.snapshotEntity.salePropertyList}}" wx:for-item="itemBox">
 	                        		{{itemBox.salePropertyName}} 
 	                        	</view>      	
 	                        </view>
