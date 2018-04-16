@@ -174,9 +174,6 @@ page{
 }
 .container{
     background: #f2f2f2;
-
-}
-.container .con{
 }
 .container .goodslist{
     display: flex;

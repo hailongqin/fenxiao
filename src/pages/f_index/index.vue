@@ -2,6 +2,7 @@
 <view class="page">	
     <view class="car" @tap="shopcart">个人中心</view>
     <view class="car" @tap="msg">消息</view>
+    <view class="car" @tap="toCar">购物车</view>
 	<distributionList></distributionList>
     <distributionDealer></distributionDealer>
 </view>
@@ -35,6 +36,11 @@ export default {
         msg(){
             wx.navigateTo({
                 url: '../f_message/f_message'
+            })
+        },
+        toCar(){
+            wx.navigateTo({
+                url: '../f_car/f_car'
             })
         }
     }
