@@ -70,7 +70,7 @@
                 </view>
             </view>
             <view class="cant-border">
-                <view class="delivery c3c ft28 bg-wt plr30" wx:if="{{scoreOpen}}">
+                <view class="delivery ft28 bg-wt plr30" wx:if="{{scoreOpen}}">
                     <checkbox-group @change="checkboxChange">
                         <label class="checkbox">
                             <view class="left">积分抵扣</view>
@@ -83,17 +83,28 @@
                     </checkbox-group>
                 </view>
             </view>
+            <view class="cant-border" @tap="coupon">
+                <view class="delivery ft28 bg-wt plr30">
+                    <view class="checkbox">
+                        <view class="left">使用优惠券</view>
+                        <view class="right" wx:if="{{discounts == ''&& isCoupon == ''}}">您有
+                            <text class="main-color">{{couPonList.length}}</text>个优惠可以使用</view>
+                        <view class="right" wx:if="{{isCoupon && discounts != '' && isCoupon != ''}}">{{discounts.ccard.cardType == 'DISCOUNT' ? '已选择折扣劵：' + discounts.ccard.discount +"折券" : '已选择代金券：满' + discounts.ccard.leastCost +'元减'+ discounts.ccard.reduceCost}}</view>
+                        <view class="right" wx:if="{{!isCoupon && discounts != '' }}">{{'已选择红包：抵扣' + discounts.couPonPrice + "元"}}</view>
+                    </view>
+                </view>
+            </view>
             <!-- <view class="cant-border">
-                                        <view class="auto clear">
-                                            <view class="cant-dis display-flex reminders">
-                                                <view class="">
-                                                    使用积分 共233积分，满1000积分可用
-                                                </view>
-                                                <image src="http://image.vdongchina.com/M00/05/C3/ZSUkmVoSUeGEQjU2AAAAAJ1SB04129.png" class="page-image reminder"></image>
+                                                                                            <view class="auto clear">
+                                                                                                <view class="cant-dis display-flex reminders">
+                                                                                                    <view class="">
+                                                                                                        使用积分 共233积分，满1000积分可用
+                                                                                                    </view>
+                                                                                                    <image src="http://image.vdongchina.com/M00/05/C3/ZSUkmVoSUeGEQjU2AAAAAJ1SB04129.png" class="page-image reminder"></image>
 
-                                            </view>
-                                        </view>
-                                    </view> -->
+                                                                                                </view>
+                                                                                            </view>
+                                                                                        </view> -->
             <view class="cant-border">
                 <view class="auto clear">
                     <view class="cant-dis clear">
@@ -118,15 +129,15 @@
                     <view class="left">商品金额</view>
                     <view class="right main-color">￥{{totalPrice}}</view>
                 </view>
-                <!-- 
-                                <view class="clear auto">
-                                    <view class="left">运费</view>
-                                    <view class="right main-color">+￥0.00</view>
-                                </view> -->
                 <view class="clear auto" wx:if="{{scoreShow}}">
                     <view class="left">积分抵扣</view>
                     <view class="right main-color">-￥{{scoreMoeny}}</view>
                 </view>
+                <view class="clear auto" wx:if="{{isDiscounts}}">
+                    <view class="left">{{isCoupon?'优惠券优惠：' :'红包抵扣'}}</view>
+                    <view class="right main-color">-￥{{discounts.couPonPrice}}</view>
+                </view>
+
             </view>
         </view>
 
@@ -148,14 +159,20 @@
             </view>
 
         </view>
+        <useCoupon :coupon-show='couponShow' :cou-ponList='couPonList' :score-before-price="scoreBeforePrice" @getCouponId="getCouponId"></useCoupon>
     </view>
 </template>
 
 <script>
+import useCoupon from "../../components/useCoupon/useCoupon"
 export default {
     config: {
         navigationBarTitleText: '确认订单'
     },
+    components: {
+        useCoupon: useCoupon
+    },
+
     data() {
         return {
             color: '',
@@ -182,21 +199,46 @@ export default {
             payScore: 0,
             getsScore: 0,
             payPrice: 0,
-            payFlag: false
-
+            payFlag: false,
+            couponShow: false,
+            isCoupon: "",  //优惠券true /false 红包
+            discounts: 0,//优惠券（红包）信息
+            isDiscounts: false, //是否选择优惠
+            isType: 1,
+            couPonList: [],
+            redPacketr: [],
+            kajuan: [],
+            hongbao: [],
+            rateFlag:false,
+            scoreBeforePrice:0
         }
     },
     onLoad(options) {
-
         this.color = this.$root.globalData.color
-
         var items = []//无论是购物车，还是立即购买，都转成items
         if (options.setBtn) {
-            items = JSON.parse(options.setBtn)
+        	var arrItem=[]
+        	var itemCar=[]        	
+            arrItem = JSON.parse(options.setBtn)
+            arrItem.forEach(function(item){
+            	items.push({
+	                id: item.productId,//商品ID
+	                productId: item.productId,//商品ID
+            		imageUrl:item.productImageUrl,
+            		productName:item.productName,
+            		productSkuId:item.skuId,
+            		productSkuSpec:item.skuName,
+            		productSku:{salePrice:item.skuPrice,product:{rateFlag:item.rateFlag,
+            		rateProportion:item.rateProportion}},
+            		num:item.quantity,
+            		
+            	})
+            })             
         }
         // ,product:{rateFlag:product.rateFlag,rateProportion:product.rateProportion}
         if (options.product) {
             var product = JSON.parse(options.product)
+            this.rateFlag = options.rateFlag
             var item = {
                 id: product.id,//商品ID
                 num: product.num,//购买数量
@@ -207,14 +249,15 @@ export default {
                 productSkuSpec: product.skuSpec,//规格名称
                 userId: 1,
                 imageUrl: product.url,
-                productSkuSpec: product.rateFlag,
                 productSkuSpec: product.rateProportion,
             };
             items.push(item)
         }
+        
         this.items = items
         var that = this
         wx.request({
+        	//url: that.$root.apiServer + that.$root.appid +that.$root.variate+ '/basic/score/applet/selectOneByOpenid?openid=' + that.$root.globalData.openid,
             url: that.$root.apiServer + that.$root.appid + '/basic/score/applet/selectOneByOpenid?openid=' + that.$root.globalData.openid,
             data: {
             },
@@ -231,32 +274,88 @@ export default {
                     if (rst.data.obj != null) {
                         that.rateScore = rst.data.obj.rateScore
                         that.payScore = rst.data.obj.payScore
-                        that.payFlag = rst.data.obj.payFlag,
-                            that.scoreOpen = rst.data.obj.rateFlag
+                        that.payFlag = rst.data.obj.payFlag
+                        if (rst.data.obj.rateFlag && that.rateFlag == "true") {
+							that.scoreOpen = rst.data.obj.rateFlag
+						}
                     }
-
                 }
                 that.getTotalPrice()
                 that.score()
-                // if (rst.data.code == "500") {
-                //     wx.showModal({
-                //         title: '提示',
-                //         content: rst.data.msg,
-                //         showCancel: false
-                //     })
-                //     return false
-                // }
-                // var ordId = rst.data.data
-                // wx.navigateTo({
-                //     url: '../membershipCardPay/membershipCardPay?id=' + ordId + "&price=" + that.totalPrice + "&isType=0"
-                // })
+                that.$root.get("/basic/coupon/applet/getCard", { openid: that.$root.globalData.openid }, data => {
+                    if (data.success) {
+                        if (data.obj.kajuan) {
+                            that.kajuan = data.obj.kajuan
+                        }
+                        if (data.obj.hongbao) {
+                            that.redPacketr = data.obj.hongbao
+                        }
+                        that.getDiscounts()
+                    }
+                })
             }
         })
 
 
-
+    },
+    getDiscounts() {  //筛选后台可用红包优惠券
+        var that = this;
+        var price = that.payPrice,
+            newRedPacketr = [],
+            newCouPonList = [];
+        if (that.kajuan.length > 0) {
+            for (let i = 0; i < that.kajuan.length; i++) {
+                that.kajuan[i].coupon = true
+                if (that.kajuan[i].ccard.cardType == 'CASH') { //剔除不满足条件的折扣券
+                    if (that.kajuan[i].ccard.leastCost <= price) {
+                        newCouPonList.push(this.kajuan[i])
+                    }
+                } else {
+                    newCouPonList.push(this.kajuan[i])
+                }
+            }
+            //   that.couPonList = that.couPonList.concat(newCouPonList)
+        }
+        if (that.redPacketr.length > 0) {
+            for (let i = 0; i < that.redPacketr.length; i++) { // 剔除不满足条件的红包
+                if (that.redPacketr[i].redPacket.usableRange == 1 || that.redPacketr[i].redPacket.usableRange == 2) { //红包指定商品范围
+                    that.redPacketr[i].coupon = false
+                    that.redPacketr[i].cardType = "红包"
+                    if (that.redPacketr[i].redPacket.conditionMoney <= Number(price)) { // 剔除不符合当前类型的红包
+                        if (that.redPacketr[i].redPacket.usableRange == 2) { //红包指定商品范围
+                            var idList = that.redPacketr[i].redPacket.productIds.split(",");    
+                            for (let j = 0; j < idList.length; j++) { //当前商品不在指定商品范围内
+                                for (let m = 0; m < that.items.length; m++) {
+                                    if (idList[j] == that.items[m].id) {
+                                        newRedPacketr.push(that.redPacketr[i])
+                                    }
+                                }
+                            }
+                        } else {
+                            newRedPacketr.push(that.redPacketr[i])
+                        }
+                    }
+                }
+            }
+            // that.couPonList = that.couPonList.concat(newRedPacketr)
+        }
+        that.couPonList = newCouPonList.concat(newRedPacketr)
     },
     methods: {
+    
+        getCouponId(isCoupon, discounts, changed) {
+            this.getTotalPrice()  //计算商品总数
+            this.score()
+            this.isCoupon = isCoupon
+            this.discounts = discounts
+            this.isDiscounts = true
+            this.couPonList = changed
+            this.payPrice = parseFloat(this.payPrice - discounts.couPonPrice).toFixed(2)
+            this.getsScore = Math.floor(this.payPrice / this.payScore)
+        },
+        coupon() {
+            this.couponShow = true
+        },
         findItemIndexByUserId(userId) {
             if (userId >= 0) {
                 for (var i = 0, len = this.items.length; i < len; i++) {
@@ -281,17 +380,22 @@ export default {
             }
             this.getTotalPrice()
         },
-        bindMinus(index) {      
+        bindMinus(index) {
             this.changeNum(index, false)
             this.score()
-
+            this.getDiscounts()
+            this.isCoupon = ''
+            this.discounts = ''
+            this.isDiscounts = false
         },
         bindPlus(index) {
-           
+
             this.changeNum(index, true)
             this.score()
-
-
+            this.getDiscounts()
+            this.isCoupon = ''
+            this.discounts = ''
+            this.isDiscounts = false
         },
         goodsNum(id) {
             var items = this.items//所有items
@@ -311,13 +415,6 @@ export default {
             }
             this.totalPrice = parseFloat(to).toFixed(2)
             this.productNum = num
-            //    console.log(!this.scoreShow)
-
-            // if(!this.scoreShow){
-            //    this.scoreMoeny = 0
-            //    this.payPrice = to
-            //    this.getsScore = Math.floor(to / this.payScore)
-            // }
 
         },
         chooseAddress() {
@@ -334,6 +431,7 @@ export default {
 
                                 var servsers = that.$root.globalData.servsers
                                 wx.request({
+                                	//url: that.$root.apiServer + that.$root.appid +that.$root.variate+ '/basic/api/user/addAddress',
                                     url: that.$root.apiServer + that.$root.appid + '/basic/api/user/addAddress',
                                     data: {
                                         token: that.$root.globalData.token,
@@ -419,16 +517,35 @@ export default {
                 if (products && products.length > 0) {
                     var servsers = getApp().globalData.servsers
                     var that = this
+                    var datas = {
+                        token: getApp().globalData.token,
+                        products: products,
+                        addressId: that.addressId,
+                        mark: that.remarkTxt,
+                        score: that.useScore,
+                        scorePrice: that.scoreMoeny
+                    }
+                    if (that.isDiscounts) {
+
+                        if (that.isCoupon) {
+                            datas.cardType = "KJ"
+                            datas.id = that.discounts.ccard.id
+                            datas.lqTime = that.discounts.lqTime
+                            datas.cardCode = that.discounts.code
+                            datas.cardTitle = that.discounts.ccard.title
+                        } else {
+                            datas.redpacketId = that.discounts.redpacketId
+                            datas.redpacketMoney = that.discounts.redPacket.money
+                            datas.redpacketLogId = that.discounts.id
+                            datas.cardTitle = that.discounts.redPacket.title
+                            datas.cardType = "HB"
+                        }
+                    }
+
                     wx.request({
+                        //url: this.$root.apiServer + this.$root.appid+this.$root.variate+ '/basic/api/ord/createOrd',
                         url: this.$root.apiServer + this.$root.appid + '/basic/api/ord/createOrd',
-                        data: {
-                            token: getApp().globalData.token,
-                            products: products,
-                            addressId: that.addressId,
-                            mark: that.remarkTxt,
-                            score: that.useScore,
-                            scorePrice: that.scoreMoeny
-                        },
+                        data: datas,
                         method: "POST",
                         header: {
                             'Content-Type': 'application/json'
@@ -507,9 +624,12 @@ export default {
         },
         checkboxChange(e) {
             this.scoreShow = !this.scoreShow
-
-            this.getTotalPrice()
-            this.score()
+            this.getTotalPrice()  //计算商品总数
+            this.score() // 计算积分 
+            this.isCoupon = ''
+            this.discounts = ''
+            this.isDiscounts = false
+            this.getDiscounts()
 
         },
         score() {
@@ -520,11 +640,11 @@ export default {
                     stockNumSummary += Math.floor(parseFloat((((items[i].productSku.salePrice * (items[i].productSku.product.rateProportion * 0.01)) / this.rateScore)) * items[i].num).toFixed(2))
                 }
             }
-            // console.log(stockNumSummary, "stockNumSummary")
             if (stockNumSummary >= this.totalScore) {  // 可以抵用积分小于可用积分时
-                this.useScore = this.totalScore            }
+                this.useScore = this.totalScore
+            }
             if (stockNumSummary <= this.totalScore) {  // 可以抵用积分大于可用积分时
-    
+
                 if (stockNumSummary < 1) {
                     stockNumSummary = 0
                 }
@@ -536,6 +656,7 @@ export default {
             }
             if (!this.scoreShow) {
                 this.scoreMoeny = 0
+                this.useScore = 0
                 this.payPrice = this.totalPrice
                 this.getsScore = Math.floor(this.payPrice / this.payScore)
             } else {
@@ -543,79 +664,9 @@ export default {
                 this.getsScore = Math.floor((((this.totalPrice * 100) - (this.scoreMoeny * 100)) / this.payScore) * 0.01)
 
             }
+            this.scoreBeforePrice = parseFloat(this.totalPrice - this.scoreMoeny).toFixed(2) //积分计算后价格（为保证选择优惠前价格统一）
             this.payPrice = parseFloat(this.totalPrice - this.scoreMoeny).toFixed(2)
-
         }
-        //         checked(e) {
-
-        //     var pointLimit = e.target.dataset.pointlimit
-        //     var index = e.target.dataset.index,
-        //       parities = this.data.parities,
-        //       totalPrice = this.data.totalPrice;
-        //     var num = this.data.num
-        //     var value = e.detail.value, credit = this.data.num;
-        //     var deduction = this.data.deduction;
-        //     if (value) {
-        //       this.setData({
-        //         checked:true
-        //       })
-        //       if (num > 0) {
-
-
-        //         if (pointLimit > num) {
-        //           deduction[index] = parseFloat((num * parities).toFixed(2))
-        //           totalPrice = parseFloat(totalPrice.toFixed(2))  - parseFloat((deduction[index]).toFixed(2))
-        //           this.setData({
-        //             num: 0,
-        //             deduction: deduction,
-        //             totalPrice: parseFloat(totalPrice.toFixed(2))
-        //           })
-        //         } else {
-        //           if (num - pointLimit > 0) {
-        //             num = credit - pointLimit
-        //             deduction[index] = parseFloat((pointLimit * parities).toFixed(2))
-        //             totalPrice = parseFloat(totalPrice.toFixed(2)) - parseFloat((deduction[index] ).toFixed(2))
-        //             this.setData({
-        //               credit: num,
-        //               num: num,
-        //               deduction: deduction,
-        //               totalPrice: parseFloat(totalPrice.toFixed(2))
-        //             })
-        //           }else{
-        //             deduction[index] = parseFloat((num * parities).toFixed(2))
-        //             totalPrice = parseFloat(totalPrice.toFixed(2))- parseFloat((deduction[index] ).toFixed(2))
-        //             this.setData({
-        //               credit: 0,
-        //               num: 0,
-        //               deduction: deduction,
-        //               totalPrice: parseFloat(totalPrice.toFixed(2))
-        //             })
-        //           }
-        //         }
-        //       }else{
-
-        //         deduction[index] = 0
-        //         this.setData({
-        //           num: 0,
-        //           deduction: deduction,
-        //           totalPrice: parseFloat(totalPrice.toFixed(2))
-        //         })
-        //       }
-
-
-        //     }else{
-        //       num = num + (parseFloat((deduction[index] / parities).toFixed(2)))
-        //       totalPrice = parseFloat(totalPrice.toFixed(2))  + parseFloat((deduction[index]).toFixed(2))
-        //       deduction[index] = 0
-        //       this.setData({
-        //         credit: num,
-        //         num: num,
-        //         deduction: deduction,
-        //         totalPrice: parseFloat(totalPrice.toFixed(2)),
-        //         checked:false
-        //       })
-        //     }
-        //   },
     }
 }
 </script>
@@ -828,6 +879,19 @@ page {
     float: left;
     font-size: 24rpx;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
