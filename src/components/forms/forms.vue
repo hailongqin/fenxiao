@@ -147,8 +147,8 @@ export default {
       type: Object,
       default: function() {
         return {
-          sort: "4",
-          id: "11"
+          sort: "",
+          id: ""
         };
       }
     },
