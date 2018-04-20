@@ -3,22 +3,22 @@
 		<view class="w-100" style="">
 			<view class="header display-flex bg-wt plr30 box-s">
 				<view class="hd-l-img pos-r">
-					<image class='hd-l-img_image' src="{{order.fullCover}}" mode="aspectFill" />
+					<image class='hd-l-img_image' src="{{orderInfo.fullCover}}" mode="aspectFill" />
 				</view>
 				<view class="hd-r-desc display-flex-1">
-					<text class="c3 ft30 hd-r-desc_title ft36">{{order.title}}</text>
+					<text class="c3 ft30 hd-r-desc_title ft36">{{orderInfo.title}}</text>
 					<view class="c6 ft24 applynum block">
-						已申请人数 : {{order.partQuantity}}
+						已申请人数 : {{orderInfo.partQuantity}}
 					</view>
 					<view class="c6 ft24 surplusnum bolck ">
-						剩余可申请人数 : {{order.maxQuantity == 0 ? "无限制": (order.maxQuantity - order.partQuantity)}}
+						剩余可申请人数 : {{orderInfo.maxQuantity == 0 ? "无限制": (orderInfo.maxQuantity - orderInfo.partQuantity)}}
 					</view>
 				</view>
 			</view>
 			<view class="time-desc box-s block bg-wt">
 				<view class="order-time bolck">
 					<text class="order-time-txt ft28 strong">预约时间</text>
-					<text class="ft24 ml20 c9">{{order.beginTime}}至{{order.endTime}}</text>
+					<text class="ft24 ml20 c9">{{orderInfo.beginTime}}至{{orderInfo.endTime}}</text>
 				</view>
 			</view>
 			<view class="desc block box-s bg-wt">
@@ -28,14 +28,18 @@
 				<view class="block arrows">
 					<view class="desc-bd block on">
 						<view class="desc-bd-desc-bd-txt ft24">
-							<rich-text nodes="{{order.description}}"></rich-text>
+							<rich-text nodes="{{orderInfo.description}}"></rich-text>
 						</view>
 	
 					</view>
 				</view>
 			</view>
-			<view class="pos-f order_bot txt-c w-100 white ft32 "  @tap="orderCb(order2.dateStatus,order2.id,order2.status,order2.whetherPart,order2.beginTime,order2.endTime)">
+			<!-- <view class="pos-f order_bot txt-c w-100 white ft32 "  @tap="orderCb(order2.dateStatus,order2.id,order2.status,order2.whetherPart,order2.beginTime,order2.endTime)">
 				{{order2.whetherPart ? '查看预约':'我要预约'}}
+			</view> -->
+			<view class="y_bottom">
+				<view class="y_bottom_left" @tap="toForward(orderInfo.dateStatus, orderInfo.beginTime, orderInfo.id, orderInfo.repeatCount)">我要预约</view>
+				<view class="y_bottom_right" @tap="lookOrder(orderInfo.whetherPart)">查看预约</view>
 			</view>
 		</view>
 	</view>	
@@ -51,8 +55,9 @@
 		data() {
 			return {
 				id: "",
-				order: {},
-				order2: {}
+				// order: {},
+				orderInfo: {},
+				title: ''
 			}
 		},
 		onLoad(options) {
@@ -61,61 +66,92 @@
 		},
 		onShow() {
 					
-				this.$root.get("/basic/plugin/form/infoandtemps", {
-					formId: this.id
-				}, (data) => {
-					if(data.success) {
-							data.form.beginTime = data.form.beginTime.substring(0, 16)
-							data.form.endTime = data.form.endTime.substring(0, 16)
-							this.order = data.form
-					}					
-				})
+				// this.$root.get("/basic/plugin/form/infoandtemps", {
+				// 	formId: this.id
+				// }, (data) => {
+				// 	if(data.success) {
+				// 			data.form.beginTime = data.form.beginTime.substring(0, 16)
+				// 			data.form.endTime = data.form.endTime.substring(0, 16)
+				// 			this.order = data.form
+				// 	}					
+				// })
 
 				this.$root.get("/basic/plugin/form/infoandtemps", {
 					formId: this.id,
 					token: wx.getStorageSync("token")
 				}, (data) => {
 					if(data.success) {
-							data.form.beginTime = data.form.beginTime.substring(0, 16)
-							data.form.endTime = data.form.endTime.substring(0, 16)
-							this.order2 = data.form
+						data.form.beginTime = data.form.beginTime.substring(0, 16)
+						data.form.endTime = data.form.endTime.substring(0, 16)
+						this.orderInfo = data.form
+						this.title = this.orderInfo.title
 					}					
 				})
 			},		
 	
 		methods: {
-			orderCb(dateStatus,id,status,whetherPart,beginTime,endTime) {
-				if(whetherPart) {
+			// orderCb(dateStatus,id,status,whetherPart,beginTime,endTime) {
+			// 	if(whetherPart) {
+			// 		wx.navigateTo({
+			// 			url: '../order_succ/order_succ?id=' + id,
+			// 		})
+			// 	} else {
+			// 		if(dateStatus == 0) {
+			// 			wx.navigateTo({
+			// 				url: '../order_look/order_look?beginTime='+beginTime,
+			// 			})
+            //            return;
+			// 		} else if(dateStatus == 2){
+			// 			wx.navigateTo({
+			// 				url: '../order_look/order_look?endTime=' + endTime,
+			// 			})
+			// 			return;
+			// 		}else{
+			// 			wx.navigateTo({
+			// 				url: '../order_detail/order_detail?id=' + id,
+			// 			})
+			// 			return;
+			// 		}
+
+			// 	}
+
+			// },
+			toForward (dateStatus, beginTime, id, repeatCount) {
+				if (dateStatus == 0) {
 					wx.navigateTo({
-						url: '../order_succ/order_succ?id=' + id,
+						url: '../order_look/order_look?beginTime='+beginTime
+					})
+				} else if (dateStatus == 2) {
+					wx.navigateTo({
+						url: '../order_look/order_look'
 					})
 				} else {
-					if(dateStatus == 0) {
-						wx.navigateTo({
-							url: '../order_look/order_look?beginTime='+beginTime,
-						})
-                       return;
-					} else if(dateStatus == 2){
-						wx.navigateTo({
-							url: '../order_look/order_look?endTime=' + endTime,
-						})
-						return;
-					}else{
-						wx.navigateTo({
-							url: '../order_detail/order_detail?id=' + id,
-						})
-						return;
-					}
-
-				}
-
-			},
-			onShareAppMessage () {
-				return { 
-					title: '预约详情',
-					path: 'pages/course_order/course_order' + '?id=' + this.id
+					wx.navigateTo({
+						url: '../order_detail/order_detail?id=' + id
+					})
 				}
 			},
+			lookOrder (whetherPart) {
+				if (whetherPart) {
+					wx.navigateTo({
+						url: '../order_single_list/order_single_list?id=' + this.id + '&title=' + this.title
+					})
+				} else {
+					wx.showModal({
+						title: '提示',
+						content: '暂无您的预约活动！',
+						showCancel: false,
+						success: function(res) {
+							if (res.confirm) {
+								// console.log('用户点击确定')
+							}
+						}
+					})
+				}
+				// wx.navigateTo({
+				// 	url: '../order_single_list/order_single_list?id=' + id,
+				// })
+			}
 		}
 	}
 </script>
@@ -276,5 +312,36 @@
 	
 	.desc {
 		padding-bottom: 110rpx;
+	}
+	.y_bottom{
+		width:100%;
+		position: fixed;
+		left:0;
+		bottom: 30rpx;
+		height:88rpx;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.y_bottom_left{
+		text-align: center;
+		line-height: 80rpx;
+		font-size: 28rpx;
+		color: #fff;
+		width: 250rpx;
+		height: 80rpx;
+		margin-right: 50rpx;
+		background: #1DA5FF;
+		border-radius: 8rpx;
+	}
+	.y_bottom_right{
+		text-align: center;
+		line-height: 80rpx;
+		font-size: 28rpx;
+		color: #fff;
+		width:250rpx;
+		height:80rpx;
+		background: #1DA5FF;
+		border-radius: 8rpx; 
 	}
 </style>

@@ -22,6 +22,7 @@
 				"pages/order_list/order_list",
 				"pages/order_succ/order_succ",
 				"pages/order_y/order_y",
+				'pages/order_single_list/order_single_list',
 				"pages/search/search",
 				"pages/searchPage/searchPage",
 				"pages/communityIndex/communityIndex",
@@ -119,7 +120,7 @@
 				"pages/f_settuike/f_settuike",
 				"pages/f_car/f_car",	
 				"pages/liveList/liveList",
-				"pages/liveDetail/liveDetail"					
+				"pages/liveDetail/liveDetail"
 			],
 			"window": {
 				"backgroundTextStyle": "light",
@@ -133,7 +134,8 @@
 				//测试
 				apiServer:'https://gw-test.vdongchina.com/',
 				// appid:"ZzzudEDK0qRxmt7sz5W",
-				appid:"Sl41przpIlWpdSjpnTw",
+				// appid:"Sl41przpIlWpdSjpnTw",
+				appid: 'EvnSLqpaMYZMjmyT52w',
 				variate:'',
 
 				//appid:"r3w0nSJqaAIkrBTY6DZ",
@@ -144,6 +146,11 @@
 				// apiServer:'https://app.vdongchina.com/',
 				// appid:'',
 				// variate:'local',	
+
+				//飞欧
+				// apiServer: 'http://192.168.31.92:8010/weichen-flashbuy-web',
+				// appid: '',
+				// variate: '',
 
 				globalData: {
 					nickName: "",

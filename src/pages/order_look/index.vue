@@ -18,8 +18,6 @@ export default {
 	onLoad(options) {
         if(options.beginTime){
             this.beginTime = options.beginTime
-        }else{
-            this.endTime = options.endTime
         }
 		
 	},

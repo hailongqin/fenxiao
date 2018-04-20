@@ -26,6 +26,14 @@
                                 </view>
                             </picker>
                         </view>
+                        <!--预约日期-->
+                        <view wx:if="{{item.type=='orderDate'}}" class="{{dates[index] == '' ? 'ft26 c9':'ft26 c3'}}">
+                            <picker start="{{startTime}}" end="{{endTime}}" class="picke" disabled="{{submitSuc}}" mode="date" value="{{dates[index]}}" @change="bindDateChange(item.allowNull,index,$event)" name="{{'name' + item.id}}">
+                                <view class="picker">
+                                    {{ dates[index] == "" ? "年/月/日" : dates[index]}}
+                                </view>
+                            </picker>
+                        </view>
                         <!--下拉框  -->
                         <view wx:if="{{item.type=='select'}}" class="ft26">
                             <picker class="picke" disabled="{{submitSuc}}" @change="bindPickerChange(index, item.allowNull,$event)" value="{{item.initValues[testtest[index]]}}" range="{{item.initValues}}" name="{{'name' + item.id}}">
@@ -84,7 +92,7 @@
             <view class="popup bg-wt">
                 <view class="model_title ft30 30 w-100 txt-c">提交成功！查看我的预约</view>
                 <view class="display-flex model_footer w-100">
-                    <view class="c9 ft36 w-100 txt-c" @tap="modelCancel">取消</view>
+                    <!-- <view class="c9 ft36 w-100 txt-c" @tap="modelCancel">取消</view> -->
                     <view class="c9 ft36 w-100 txt-c confirm" @tap="modelConfirm">确定</view>
                 </view>
             </view>
@@ -111,20 +119,21 @@ export default {
             temps: [],//表单数据
             testtest: [],//对应下拉框所选择的索引
             id: "",//formId
-            formContentId: ''
+            formContentId: '',
+            startTime: '',
+            endTime: '',
+            soleList: []
         }
     },
     onLoad(options) {
+        this.getNowDate()
         let userInf = wx.getStorageSync("userInfo")
-        console.log( userInf.nickName)
         if (!userInf.nickName) {
-            console.log("1111")
             var that = this
             wx.login({
                 success(res) {
                     wx.getUserInfo({
                         success: function (user) {
-                            console.log(user)
                             wx.setStorageSync("userInfo", user.userInfo);
                             if (res.code) {
                                 //发起网络请求
@@ -143,7 +152,7 @@ export default {
                                     }
                                 })
                             } else {
-                                console.log('获取用户登录态失败！' + res.errMsg)
+                                // console.log('获取用户登录态失败！' + res.errMsg)
                             }
                         }
                     })
@@ -153,11 +162,12 @@ export default {
         }
         var date = [],
 
-            selectIndexs = [],
-            disqualifications = {};
+        selectIndexs = [],
+        disqualifications = {};
         this.submitSuc = false
         this.modelShow = false
         this.$root.get("/basic/plugin/form/infoandtemps", { formId: options.id }, (data) => {
+            this.endTime = data.form.endTime.substr(0,10)
             for (let i = 0; i < data.temps.length; i++) {
                 disqualifications[i] = "-1"
                 date[i] = ''
@@ -174,6 +184,20 @@ export default {
         })
     },
     methods: {
+        //获取当前日期
+        getNowDate(){
+            var nowDate = new Date()
+            var year = nowDate.getFullYear()
+            var month = nowDate.getMonth() + 1
+            var day = nowDate.getDate()
+            if(month < 10){
+                month = '0' + month
+            }
+            if(day < 10){
+                day = '0' + day
+            }
+            this.startTime = year + '-' + month + '-' + day
+        },
         /**
          * 生命周期函数--监听页面初次渲染完成
          */
@@ -196,7 +220,7 @@ export default {
             })
             changeDate[index] = a
             this.dates = changeDate
-            console.log(this.dates)
+            // console.log(this.dates)
             this.SubmitCount(a, index, allowNull)
 
         },
@@ -238,7 +262,6 @@ export default {
 
         },
         formSubmit(e) { //提交数据
-            console.log(e)
             var formId = this.id//表单id
             var $this = this,
                 datas = e.detail.value;
@@ -278,7 +301,6 @@ export default {
                     trueCount++ //数据通过验证,通过验证数增加
                 }
             }
-            console.log(data)
             if (trueCount < formName.length) {//验证数少于表单长度
                 this.reminderShow = true
                 this.disqualification = disqualifications
@@ -286,13 +308,13 @@ export default {
             }
             if (trueCount == formName.length) {//全部通过验证
                 this.reminderShow = false
+                this.soleList = data.contents
                 wx.request({
                     url: this.$root.apiServer + $this.$root.appid + "/basic/plugin/form/content/save",
                     method: "POST",
                     data: data,
                     header: { 'content-type': "application/json;charset=UTF-8" },
                     success: function (data) {
-                        console.log(data)
                         if (data.data.success) {
                             $this.modelShow = true//弹出模态框
                             $this.submitSuc = true//表单所有选项不可点击
@@ -302,19 +324,18 @@ export default {
                             }
                             $this.formContentId = data.data.id
                             $this.disqualification = disqualifications
-                            console.log(trueCount)
                         } else {
                             if (data.data.message) {
                                 wx.showToast({
                                     title: data.data.message,
-                                    icon: 'loading',
+                                    icon: 'none',
                                     duration: 2000
                                 })
                             }
                             else {
                                 wx.showToast({
                                     title: data.data.replace("html-bussiness:", ""),
-                                    icon: 'loading',
+                                    icon: 'none',
                                     duration: 2000
                                 })
                             }
@@ -344,20 +365,39 @@ export default {
                                 })
                             } else {
                                 if (data.data.message) {
-                                    wx.showToast({
-                                        title: data.data.message,
-                                        icon: 'loading',
-                                        duration: 2000
+                                    // wx.showToast({
+                                    //     title: data.data.message,
+                                    //     icon: 'loading',
+                                    //     duration: 2000
+                                    // })
+                                    wx.showModal({
+                                        title: '提示',
+                                        content: data.data.message,
+                                        showCancel: false,
+                                        success: function(res) {
+                                            if (res.confirm) {
+                                                // console.log('用户点击确定')
+                                            }
+                                        }
                                     })
                                 } 
                                 else {
-                                    wx.showToast({
-                                        title: data.data.replace("html-bussiness:", ""),
-                                        icon: 'loading',
-                                        duration: 2000
+                                    // wx.showToast({
+                                    //     title: data.data.replace("html-bussiness:", ""),
+                                    //     icon: 'loading',
+                                    //     duration: 2000
+                                    // })
+                                    wx.showModal({
+                                        title: '提示',
+                                        content: data.data.replace("html-bussiness:", ""),
+                                        showCancel: false,
+                                        success: function(res) {
+                                            if (res.confirm) {
+                                                // console.log('用户点击确定')
+                                            }
+                                        }
                                     })
                                 }
-
                             }
                         }, 1)
                     }
@@ -365,19 +405,21 @@ export default {
                 
             })
         },
-        back(e) {
+        back() {
             wx.navigateBack({ //点击取消返回上一层
                 delta: 1
             })
         },
         // 判断是否全部符合
-        modelCancel() { //提交成功，点击取消
-            this.modelShow = false
-        },
+        // modelCancel() { //提交成功，点击取消
+        //     this.modelShow = false
+        // },
         modelConfirm() {//提交成功查看预约
-            var id = this.id
+            var id = this.formContentId
+            let temps = JSON.stringify(this.temps)
+            let soleList = JSON.stringify(this.soleList)
             wx.redirectTo({
-                url: '../order_succ/order_succ?id=' + id,
+                url: '../order_succ/order_succ?id=' + id + '&temps=' + temps + '&soleList=' + soleList,
             })
         },
     }

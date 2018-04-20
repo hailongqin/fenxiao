@@ -3,20 +3,29 @@
     <view class="car" @tap="shopcart">个人中心</view>
     <view class="car" @tap="msg">消息</view>
     <view class="car" @tap="toCar">购物车</view>
-	<distributionList></distributionList>
-    <distributionDealer></distributionDealer>
+	<!-- <distributionList></distributionList> -->
+    <!-- <distributionDealer></distributionDealer> -->
+    <!-- <new-prolists></new-prolists> -->
+    <forms></forms>  
+    <bespeak></bespeak>
 </view>
 </template>
 <script>
+import newProlists from '../../components/newProlists/newProlists'
 import distributionList from "../../components/distributionList/distributionList"		
 import distributionDealer from "../../components/distributionDealer/distributionDealer"	
+import forms from '../../components/forms/forms'
+import bespeak from '../../components/bespeak/bespeak'
 export default {
     config: {
         navigationBarTitleText: '首页'
     },
     components:{
-    	distributionList:distributionList,
-        distributionDealer:distributionDealer
+        // newProlists:newProlists,
+    	// distributionList:distributionList,
+        // distributionDealer:distributionDealer,
+        forms: forms,
+        bespeak: bespeak
     },
     data () {
       return {
@@ -40,7 +49,7 @@ export default {
         },
         toCar(){
             wx.navigateTo({
-                url: '../f_car/f_car'
+                url: '../order_y/order_y'
             })
         }
     }

@@ -133,7 +133,6 @@ var GetList = function ($this) {
     let token = wx.getStorageSync("token")
     $this.hidden = false
     $this.$root.get("/basic/plugin/form/user/list", { size: 10, pageNum: $this.page, queryStatus: $this.status, token: token }, (data) => {
-        console.log(data)
         if (data.success) {
             let list = $this.rows,
                 datas = data.pageInfo.list;

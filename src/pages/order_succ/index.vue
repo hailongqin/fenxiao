@@ -11,43 +11,47 @@
                 </view>
                 <!--input text -->
                 <view class=" ft26 input_content c3" wx:if="{{item.type=='text'}}">
-                    {{formContent.details[item.id].content}}
+                    {{formContent[index].content}}
                 </view>
                 <view class="ft26 input_content c3" wx:if="{{item.type=='textarea'}}">
-                    {{formContent.details[item.id].content}}
+                    {{formContent[index].content}}
                 </view>
                 <view class="ft26 input_content c3" wx:if="{{item.type=='tel'}}">
-                    {{formContent.details[item.id].content}}
+                    {{formContent[index].content}}
                 </view>
                 <!--select date  -->
                 <view wx:if="{{item.type=='date'}}" class="ft26 input_content c3">
-                    {{formContent.details[item.id].content}}
+                    {{formContent[index].content}}
+                </view>
+                <!--预约日期-->
+                <view wx:if="{{item.type=='orderDate'}}" class="ft26 input_content c3">
+                    {{formContent[index].content}}
                 </view>
                 <!--下拉框  -->
                 <view wx:if="{{item.type=='select'}}" class="ft26 input_content c3">
-                    {{formContent.details[item.id].content == null ? '': formContent.details[item.id].content}}
+                    {{formContent[index].content == null ? '': formContent[index].content}}
                 </view>
                 <!--多选框  -->
-                <view class="ft26 gender_radio checkbox" wx:if="{{item.type == 'checkbox' && formContent.details[item.id].content.length > 0}}" @tap="index" data-index="{{index}}" wx:for="{{formContent.details[item.id].content}}" wx:key="content" wx:for-item="itemName" wx:for-index="idx">
+                <view class="ft26 gender_radio checkbox" wx:if="{{item.type == 'checkbox' && formContent[index].content.length > 0}}" @tap="index" data-index="{{index}}" wx:for="{{formContent[index].content}}" wx:key="content" wx:for-item="itemName" wx:for-index="idx">
                      <view class="gender_checkbox" wx:if="{{itemName.length>0}}"> 
                         <icon class="icon radioIcon" type="success_no_circle" size="18" color="#1DA5FF" /> {{itemName}}
                      </view> 
                 </view>
                 <!--单选框  -->
-                <view class="ft26 gender_radio" wx:if="{{item.type=='radio' && formContent.details[item.id].content.length > 0}}">
-                    <icon class="icon" type="success" color="#1DA5FF" size="24" /> {{formContent.details[item.id].content}}
+                <view class="ft26 gender_radio" wx:if="{{item.type=='radio' && formContent[item.id].content.length > 0}}">
+                    <icon class="icon" type="success" color="#1DA5FF" size="24" /> {{formContent[item.id].content}}
                 </view>
             </view>
         </block>
         <view class="w-100">
-            <button class="ft32 txt-c w-100 white cancel" data-id="{{formContent.id}}" @tap="cancel">取消预约</button>
+            <button class="ft32 txt-c w-100 white cancel" @tap="cancel(activityId)">取消预约</button>
         </view>
     </view>
 </template>
 
 <script>
 var app = getApp()
-var formatTime = require('../../utils/util.js')
+// var formatTime = require('../../utils/util.js')
 export default {
     config: {
         "navigationBarTitleText": "预约成功"
@@ -55,45 +59,67 @@ export default {
     data() {
         return {
             formContent: {},
-            temps: []
+            temps: [],
+            activityId: ''
         }
     },
-    onLoad(options) {
-        var date = [],
-            selectIndexs = [],
-            that = this,
-            disqualifications = {},
-            token = wx.getStorageSync("token");
-        console.log(token)
-        this.$root.get("/basic/plugin/form/content/obtain", { formId: options.id, token: token }, (data) => {
-            if (data.success) {
-                for (let i = 0; i < data.temps.length; i++) {
-                    console.log(i)
-                    console.log(data.temps[i].id == data.formContent.details[data.temps[i].id].tempId)
-                    if (data.formContent.details[data.temps[i].id].type == "checkbox") {
-                        let details =  data.formContent.details[data.temps[i].id].content;
-                        details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g,"")
+    onLoad(e) {
+        this.activityId = parseInt(e.id)
+        // var date = [], selectIndexs = [], that = this, disqualifications = {}, token = wx.getStorageSync("token");
+        // this.$root.get("/basic/plugin/form/content/obtain", { formId: options.id, token: token }, (data) => {
+        //     console.log(data)
+            // if (data.success) {
+                // for (let i = 0; i < data.temps.length; i++) {
+                //     console.log(i)
+                //     // console.log(data.temps[i].id == data.formContent.details[data.temps[i].id].tempId)
+                //     if (data.formContent.list[0].details[data.temps[i].id].type == "checkbox") {
+                //         let details =  data.formContent.list[0].details[data.temps[i].id].content;
+                //         details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g,"")
 
-                        data.formContent.details[data.temps[i].id].content = details.split(",")
-                    }
-                    if (data.temps[i].id == data.formContent.details[data.temps[i].id].tempId) {
-                        data.formContent.details[data.temps[i].id].name == data.temps[i].name
+                //         data.formContent.list[0].details[data.temps[i].id].content = details.split(",")
+                //     }
+                //     if (data.temps[i].id == data.formContent.list[0].details[data.temps[i].id].tempId) {
+                //         data.formContent.list[0].details[data.temps[i].id].name == data.temps[i].name
                        
-                    }
-                }
-                that.formContent = data.formContent
-                that.temps = data.temps
-            }
+                //     }
+                // }
+            //     that.formContent = data.formContent.list[0]
+            //     that.temps = data.temps
+            // }
 
-        })
+        // })
+        this.formContent = JSON.parse(e.soleList)
+        this.temps = JSON.parse(e.temps)
+        // if(typeof this.temps == 'string'){
+        //     this.temps = JSON.parse(e.temps)
+        // }
+        var that = this
+        for (let i = 0; i < that.temps.length; i++) {
+            // console.log(data.temps[i].id == data.formContent.details[data.temps[i].id].tempId)
+            if (that.formContent[i].type == "checkbox") {
+                let details =  that.formContent[i].content;
+                details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g,"")
+
+                that.formContent[i].content = details.split(",")
+            }
+            if (that.temps[i].id == that.formContent[i].tempId) {
+                that.formContent[i].name == that.temps[i].name
+            }
+        }
+        var contentList = []
+        for(var i=0; i<that.temps.length; i++){
+            for(var j=0; j<that.formContent.length; j++){
+                if(that.temps[i].id == that.formContent[j].tempId){
+                    contentList.push(that.formContent[j])
+                }
+            }
+        }
+        that.formContent = contentList
     },
     methods: {
-        cancel(e) {
-            var id = e.currentTarget.dataset.id
+        cancel (id) {
             var that = this
             var token = wx.getStorageSync("token");
-            console.log(id)
-            console.log(e)
             wx.showModal({
                 title: '提示',
                 content: '确定取消预约',
@@ -107,7 +133,7 @@ export default {
                                     duration: 2000
                                 })
                                 setTimeout(function () {
-                                    wx.redirectTo({
+                                    wx.navigateTo({
                                         url: '../order_y/order_y'
                                     })
                                 }, 2000)

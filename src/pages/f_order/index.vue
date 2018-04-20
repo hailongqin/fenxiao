@@ -100,96 +100,71 @@ export default {
   },
   onLoad(e) {
     var that = this;
-    if (e.ordno) {
-      that.shopcartOrd(e.ordno);
-    } else {
-      if (e.type == 1) {
-        that.currentTab = 0;
-        that.status = "";
-      } else if (e.type == 2) {
+    var typeVal = parseInt(e.type)
+    switch (typeVal) {
+      case 1: {
+        that.currentTab = 0
+        that.status = ''
+        break
+      }
+      case 2: {
         that.currentTab = 1;
         that.status = "?ordState=0";
-      } else if (e.type == 3) {
+        break
+      }
+      case 3: {
         that.currentTab = 2;
         that.status = "?ordState=1";
-      } else if (e.type == 4) {
+        break
+      }
+      case 4: {
         that.currentTab = 3;
         that.status = "?ordState=2";
-      } else if (e.type == 5) {
+        break
+      }
+      default: {
         that.currentTab = 4;
         that.status = "?refundState=6";
       }
-      wx.showLoading({
-        title: "正在拼命加载中"
-      });
-      wx.request({
-        url:
-          that.$root.apiServer +
-          that.$root.appid +
-          that.$root.variate +
-          "/basic/client/distribution/order/listPage" +
-          that.status,
-        data: {
-          token: that.$root.globalData.token,
-          pageSize: 100,
-          currentPage: 1,
-          pid: that.$root.globalData.pid
-        },
-        method: "POST",
-        header: {
-          "content-type": "application/x-www-form-urlencoded"
-        },
-        success: function(res) {
-          if (res.data.code == "200") {
-            wx.hideLoading();
-            that.allLists = res.data.object.list;
-            console.log(that.allLists, "gggggggggggggggg");
-            that.allListsLength = that.allLists.length;
-            that.orderFlag = 1;
-          } else {
-            wx.hideLoading();
-            wx.showLoading({
-              title: "数据加载失败!",
-              icon: "loading"
-            });
-          }
-        }
-      });
     }
+    wx.showLoading({
+      title: "正在拼命加载中"
+    });
+    wx.request({
+      url:
+        that.$root.apiServer +
+        that.$root.appid +
+        that.$root.variate +
+        "/basic/client/distribution/order/listPage" +
+        that.status,
+      data: {
+        token: that.$root.globalData.token,
+        pageSize: 100,
+        currentPage: 1,
+        pid: that.$root.globalData.pid
+      },
+      method: "POST",
+      header: {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      success: function(res) {
+        if (res.data.code == "200") {
+          wx.hideLoading();
+          that.allLists = res.data.object.list;
+          console.log(that.allLists, "gggggggggggggggg");
+          that.allListsLength = that.allLists.length;
+          that.orderFlag = 1;
+        } else {
+          wx.hideLoading();
+          wx.showLoading({
+            title: "数据加载失败!",
+            icon: "loading"
+          });
+        }
+      }
+    })
   },
   methods: {
-    //购物车提交订单
-    shopcartOrd(arr) {
-      var that = this;
-      wx.request({
-        url:
-          that.$root.apiServer +
-          that.$root.appid +
-          that.$root.variate +
-          "/basic/client/distribution/order/queryOrderList",
-        data: {
-          token: that.$root.globalData.token,
-          idsList: arr,
-          pid: that.$root.globalData.pid
-        },
-        method: "POST",
-        header: {
-          "content-type": "application/x-www-form-urlencoded"
-        },
-        success: function(res) {
-          if (res.data.code == "200") {
-            that.allLists = res.data.object;
-            that.allListsLength = that.allLists.length;
-            that.orderFlag = 1;
-          } else {
-            wx.showLoading({
-              title: "数据加载失败!",
-              icon: "loading"
-            });
-          }
-        }
-      });
-    },
     // 查看不同类型订单
     navbarTap(type) {
       var that = this;

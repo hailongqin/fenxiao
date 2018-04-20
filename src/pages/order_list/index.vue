@@ -30,7 +30,6 @@ var token = wx.getStorageSync("token")
             pageSize: 100
           }, (data) => {
         let list = $this.order;
-        console.log(data)
         if (data.pagination.list == 0) {
             return
         } else {
@@ -44,7 +43,6 @@ var token = wx.getStorageSync("token")
 
         }
         $this.order = list
-        console.log("order",$this.order)
     })
 }
 export default {
