@@ -20,14 +20,14 @@ export default {
     },
     data() {
         return {
-           title: '',
-           orderList: [],
-           formId: '',
-           pageSize: 10,
-           currentPage: 1,
-           pages: 0,
-           temps: [],
-           detailsList: []
+           title: '',//--活动名称唯一
+           orderList: [],//--目的为了获取预约活动创建时间及已预约活动列表每一项对应的id
+           formId: '',//--当前活动的id
+           pageSize: 10,//--已预约活动列表单页个数
+           currentPage: 1,//--已预约活动列表从第一页开始查询
+           pages: 0,//--查询已预约列表总共的页数
+           temps: [],//--表单必填项对应的名字
+           detailsList: []//--表单必填项对应的数据
         }
     },
     onLoad (e) {   
@@ -56,24 +56,18 @@ export default {
                         that.temps = res.data.temps
                         var list = res.data.formContent.list
                         var allList = []
+                        //--为了避开返回数据对象内有以数字作为参数名的尴尬情况，筛选出需要的数据放在一个指定的数组中备用
                         for (var i=0; i<res.data.formContent.list.length; i++) {
                             for(var k in res.data.formContent.list[i].details){
                                 allList.push(res.data.formContent.list[i].details[k])
                             }
                         }
                         var singleList = []
-//                      list.forEach(function(item,index,array){
-//                          array[index] = {
-//                              firstImage:item.imageList[0].url,
-//                              name:item.name,
-//                              productId:item.productId
-//                          }
-//                      });
-//                  return    
                         that.pages = res.data.formContent.pages
                         that.orderList = that.orderList.concat(list)
-                        that.detailsList = that.detailsList.concat(allList)
+                        that.detailsList = that.detailsList.concat(allList)//--筛选后的有效数据
                         that.currentPage += 1
+                        console.log(that.orderList,that.detailsList)
 					} else {
                         wx.showToast({
                             title: "网络异常！",
@@ -93,6 +87,7 @@ export default {
 		},	
         toDetail(id){
             let soleList = []
+            //--选出单次预约必选项对应的数据
             for (var i=0; i<this.detailsList.length; i++) {
                 if(this.detailsList[i].contentId == id){
                     soleList.push(this.detailsList[i])

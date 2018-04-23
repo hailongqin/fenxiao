@@ -32,18 +32,18 @@
                     {{formContent[index].content == null ? '': formContent[index].content}}
                 </view>
                 <!--多选框  -->
-                <view class="ft26 gender_radio checkbox" wx:if="{{item.type == 'checkbox' && formContent[index].content.length > 0}}" @tap="index" data-index="{{index}}" wx:for="{{formContent[index].content}}" wx:key="content" wx:for-item="itemName" wx:for-index="idx">
+                <view class="ft26 gender_radio checkbox" wx:if="{{item.type == 'checkbox' && formContent[index].content}}" @tap="index" data-index="{{index}}" wx:for="{{formContent[index].content}}" wx:key="content" wx:for-item="itemName" wx:for-index="idx">
                      <view class="gender_checkbox" wx:if="{{itemName.length>0}}"> 
                         <icon class="icon radioIcon" type="success_no_circle" size="18" color="#1DA5FF" /> {{itemName}}
                      </view> 
                 </view>
                 <!--单选框  -->
-                <view class="ft26 gender_radio" wx:if="{{item.type=='radio' && formContent[item.id].content.length > 0}}">
-                    <icon class="icon" type="success" color="#1DA5FF" size="24" /> {{formContent[item.id].content}}
+                <view class="ft26 gender_radio" wx:if="{{item.type=='radio' && formContent[index].content}}">
+                    <icon class="icon" type="success" color="#1DA5FF" size="24" /> {{formContent[index].content}}
                 </view>
             </view>
         </block>
-        <view class="w-100">
+        <view class="w-100" wx:if="{{cancelFlag}}">
             <button class="ft32 txt-c w-100 white cancel" @tap="cancel(activityId)">取消预约</button>
         </view>
     </view>
@@ -58,20 +58,18 @@ export default {
     },
     data() {
         return {
-            formContent: {},
-            temps: [],
-            activityId: ''
+            formContent: [],//--单次预约必选项对应的数据
+            temps: [],//--表单必填项对应的名字
+            activityId: '',//--单次预约对应的id
+            cancelFlag: 0//--数据加载完成前先不显示任何内容
         }
     },
     onLoad(e) {
         this.activityId = parseInt(e.id)
         // var date = [], selectIndexs = [], that = this, disqualifications = {}, token = wx.getStorageSync("token");
         // this.$root.get("/basic/plugin/form/content/obtain", { formId: options.id, token: token }, (data) => {
-        //     console.log(data)
             // if (data.success) {
                 // for (let i = 0; i < data.temps.length; i++) {
-                //     console.log(i)
-                //     // console.log(data.temps[i].id == data.formContent.details[data.temps[i].id].tempId)
                 //     if (data.formContent.list[0].details[data.temps[i].id].type == "checkbox") {
                 //         let details =  data.formContent.list[0].details[data.temps[i].id].content;
                 //         details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g,"")
@@ -88,33 +86,38 @@ export default {
             // }
 
         // })
-        this.formContent = JSON.parse(e.soleList)
+
+        //--JSON.parse():将一个 JSON 字符串转换为对象
+        var formData = []
+        formData = JSON.parse(e.soleList)
         this.temps = JSON.parse(e.temps)
         // if(typeof this.temps == 'string'){
         //     this.temps = JSON.parse(e.temps)
         // }
+
         var that = this
         for (let i = 0; i < that.temps.length; i++) {
-            // console.log(data.temps[i].id == data.formContent.details[data.temps[i].id].tempId)
-            if (that.formContent[i].type == "checkbox") {
-                let details =  that.formContent[i].content;
+            if (formData[i].type == "checkbox") {
+                let details =  formData[i].content;
                 details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g,"")
 
-                that.formContent[i].content = details.split(",")
+                formData[i].content = details.split(",")
             }
-            if (that.temps[i].id == that.formContent[i].tempId) {
-                that.formContent[i].name == that.temps[i].name
+            if (that.temps[i].id == formData[i].tempId) {
+                formData[i].name == that.temps[i].name
             }
         }
+        //--找出必选项每一项对应的数据，否则可能导致数据对应错乱（比如：姓名可能对应的是性别）
         var contentList = []
         for(var i=0; i<that.temps.length; i++){
-            for(var j=0; j<that.formContent.length; j++){
-                if(that.temps[i].id == that.formContent[j].tempId){
-                    contentList.push(that.formContent[j])
+            for(var j=0; j<formData.length; j++){
+                if(that.temps[i].id == formData[j].tempId){
+                    contentList.push(formData[j])
                 }
             }
         }
         that.formContent = contentList
+        that.cancelFlag = 1
     },
     methods: {
         cancel (id) {

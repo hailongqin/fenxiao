@@ -180,15 +180,15 @@ export default {
       formContentId: "",
       tests: "",
       categoryId: "",
-	  repeatCount: "",//单个活动可预约次数
-	  startTime: '',
-	  endTime: ''
+      repeatCount: "",//--单个活动可预约次数
+      startTime: '',//--用户预约的当前时间
+      endTime: ''//--活动截止时间
     };
   },
   onLoad() {
-	var that = this;
-	that.getNowDate()
-	// that.startTime = nowDate.substr(0,10)
+	  var that = this;
+    //--获取用户预约的当前时间
+	  that.getNowDate()
     var userInf = wx.getStorageSync("userInfo");
     if (!userInf.nickName) {
       wx.login({
@@ -224,16 +224,9 @@ export default {
       });
     }
     var id = this.form.id;
-
-    // if (id == "") {
-    // 	return
-	// }
-	var that = this
+	  var that = this
     wx.request({
-      url:
-        that.$root.apiServer +
-        that.$root.appid +
-        "/basic/plugin/form/infoandtemps",
+      url:that.$root.apiServer + that.$root.appid + "/basic/plugin/form/infoandtemps",
       method: "GET",
       header: {
         "content-type": "application/json"
@@ -242,85 +235,80 @@ export default {
         formId: id
       },
       success(res) {
-		that.endTime = res.data.form.endTime.substr(0,10)
-        that.repeatCount = res.data.form.repeatCount;
-        that.loadForm(id);
-        //如果活动只能单次预约则执行this.loadForm(id)方法
+        if (res.data.form && res.data.form.endTime) {
+          //--获取活动结束时间
+		      that.endTime = res.data.form.endTime.substr(0,10)
+        }
+        if (res.data.form && res.data.form.repeatCount) {
+          //--单个活动可预约次数
+          that.repeatCount = res.data.form.repeatCount
+        }
+        that.loadForm(id)
         if (that.repeatCount == 1) {
-         
           var dateArr = [],
-            selectIndexs = [],
-            disqualifications = {},
-            token = wx.getStorageSync("token");
-          that.$root.get(
-            "/basic/plugin/form/content/obtain",
-            { formId: id, token: token },
-            data => {
-              if (data.success) {
-				// console.log(data.formContent.list[0].id)
-                // for (let i = 0; i < data.temps.length; i++) {
-                // 	if (data.formContent.details[data.temps[i].id].type == "checkbox") {
-                // 		let details = data.formContent.details[data.temps[i].id].content;
-                // 		details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g, "")
+          selectIndexs = [],
+          disqualifications = {},
+          token = wx.getStorageSync("token");
+          that.$root.get("/basic/plugin/form/content/obtain",{ formId: id, token: token },data => {
+            if (data.success) {
+              // for (let i = 0; i < data.temps.length; i++) {
+              // 	if (data.formContent.details[data.temps[i].id].type == "checkbox") {
+              // 		let details = data.formContent.details[data.temps[i].id].content;
+              // 		details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g, "")
 
-                // 		data.formContent.details[data.temps[i].id].content = details.split(",")
-                // 	}
-                // 	if (data.temps[i].id == data.formContent.details[data.temps[i].id].tempId) {
-                // 		data.formContent.details[data.temps[i].id].name == data.temps[i].name
+              // 		data.formContent.details[data.temps[i].id].content = details.split(",")
+              // 	}
+              // 	if (data.temps[i].id == data.formContent.details[data.temps[i].id].tempId) {
+              // 		data.formContent.details[data.temps[i].id].name == data.temps[i].name
 
-                // 	}
-                // }
-				// that.formContent = data.formContent.list[0]
-                that.temps = data.temps;
-                if (data.formContent.list.length > 0) {
-                  that.formContentId = data.formContent.list[0].id;
-                  that.modelShow = true;
-                } else {
-                  that.modelShow = false;
-                }
+              // 	}
+              // }
+              // that.formContent = data.formContent.list[0]
+              that.temps = data.temps;
+              if (data.formContent.list.length > 0) {
+                that.formContentId = data.formContent.list[0].id;
+                that.modelShow = true;
               } else {
-                wx.showToast({
-                  title: "网络异常！",
-                  icon: "loading",
-                  duration: 2000
-                });
+                that.modelShow = false;
               }
+            } else {
+              wx.showToast({
+                title: "网络异常！",
+                icon: "loading",
+                duration: 2000
+              });
             }
-          );
+          })
         } else {
           var dateArr = [],
-            selectIndexs = [],
-            disqualifications = {},
-            token = wx.getStorageSync("token");
-          that.$root.get(
-            "/basic/plugin/form/content/obtain",
-            { formId: id, token: token },
-            data => {
-              if (data.success) {
-				
-                that.temps = data.temps;
-              }
+          selectIndexs = [],
+          disqualifications = {},
+          token = wx.getStorageSync("token")
+          that.$root.get("/basic/plugin/form/content/obtain",{ formId: id, token: token },data => {
+            if (data.success) {
+              that.temps = data.temps;
             }
-          );
+          })
         }
       }
     })
   },
   methods: {
-	  //获取当前日期
-	getNowDate(){
-		var nowDate = new Date()
-		var year = nowDate.getFullYear()
-		var month = nowDate.getMonth() + 1
-		var day = nowDate.getDate()
-		if(month < 10){
-			month = '0' + month
-		}
-		if(day < 10){
-			day = '0' + day
-		}
-		this.startTime = year + '-' + month + '-' + day
-	},
+	  //--获取用户操作的当前日期
+    getNowDate(){
+      var nowDate = new Date()
+      var year = nowDate.getFullYear()
+      var month = nowDate.getMonth() + 1
+      var day = nowDate.getDate()
+      if(month < 10){
+        month = '0' + month
+      }
+      if(day < 10){
+        day = '0' + day
+      }
+      this.startTime = year + '-' + month + '-' + day
+    },
+
     /**
      * 生命周期函数--监听页面初次渲染完成
      */
@@ -392,14 +380,14 @@ export default {
       //提交数据
       var formId = this.form.id; //表单id
       var $this = this,
-        datas = e.detail.value;
+      datas = e.detail.value;
       var formName = $this.temps;
       var data = {};
       var trueCount = 0; // 数据符合的数量
       this.SubmitCounts = 1; //设置提交状态
       var FormDatas = e.detail.value,
-        userInfos = wx.getStorageSync("userInfo"),
-        disqualifications = this.disqualification;
+      userInfos = wx.getStorageSync("userInfo"),
+      disqualifications = this.disqualification;
       //手机号验证
       data["formId"] = formId;
       data["headimgurl"] = userInfos.avatarUrl;
@@ -500,15 +488,12 @@ export default {
     },
     loadForm(id) {
       var date = [],
-        selectIndexs = [],
-        disqualifications = {};
+      selectIndexs = [],
+      disqualifications = {};
       this.submitSuc = false;
       var that = this;
       wx.request({
-        url:
-          this.$root.apiServer +
-          this.$root.appid +
-          "/basic/plugin/form/infoandtemps",
+        url: this.$root.apiServer + this.$root.appid + "/basic/plugin/form/infoandtemps",
         method: "GET",
         header: {
           "content-type": "application/json"
@@ -529,7 +514,7 @@ export default {
           that.disqualification = disqualifications;
           this.id = id;
         }
-      });
+      })
     },
     look() {
       wx.navigateTo({
@@ -571,13 +556,13 @@ export default {
                 }
               },
               1
-            );
+            )
           }
         }
-      });
+      })
     }
   }
-};
+}
 </script>
 
 <style>

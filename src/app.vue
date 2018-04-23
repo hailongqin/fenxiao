@@ -328,56 +328,56 @@
 					url: `../error/error?msg=${msg}` + (image ? `&image=${image}` : '')
 				})
 			},
-		post: function(url, data, successFn, header_t) {
-			var $this = this;
-			// data["currentUserId"] = this.globalData.currentUserId;
-			// data["token"] = $this.globalData.token;
-			if (header_t) {
-				header_t = 'application/x-www-form-urlencoded'
-			} else {
-				header_t = "application/json;charset=UTF-8"
-			}
-			wx.request({
-				url: $this.apiServer + $this.appid+ url,
-				data: data,
-				// data:{},
-				header: {
-					'content-type': header_t
-				},
-				method: "POST",
-				success: function(res) {
-					if (successFn) successFn(res.data);
+			post: function(url, data, successFn, header_t) {
+				var $this = this;
+				// data["currentUserId"] = this.globalData.currentUserId;
+				// data["token"] = $this.globalData.token;
+				if (header_t) {
+					header_t = 'application/x-www-form-urlencoded'
+				} else {
+					header_t = "application/json;charset=UTF-8"
 				}
-			});
-		},
-		get: function(url, data, successFn, failFn, completeFn) {
-			var $this = this;
-			//      data["token"] = $this.globalData.token;
-			wx.request({
-				url: $this.apiServer + $this.appid  + url,
-				data: data,
-				// data:{},
-
-				method: "GET",
-				header: {
-					'content-type': "application/json;charset=UTF-8"
-				},
-				success: function(res) {
-					if (successFn) successFn(res.data);
-				},
-				fail: function(res) {
-					if (failFn) failFn(res);
-				},
-				complete: function(res) {
-					if (completeFn) {
-						setTimeout(function() {
-							$this.showT(0);
-							completeFn(res.data);
-						}, 2000)
+				wx.request({
+					url: $this.apiServer + $this.appid+ url,
+					data: data,
+					// data:{},
+					header: {
+						'content-type': header_t
+					},
+					method: "POST",
+					success: function(res) {
+						if (successFn) successFn(res.data);
 					}
-				}
-			});
-		},
+				});
+			},
+			get: function(url, data, successFn, failFn, completeFn) {
+				var $this = this;
+				//      data["token"] = $this.globalData.token;
+				wx.request({
+					url: $this.apiServer + $this.appid  + url,
+					data: data,
+					// data:{},
+
+					method: "GET",
+					header: {
+						'content-type': "application/json;charset=UTF-8"
+					},
+					success: function(res) {
+						if (successFn) successFn(res.data);
+					},
+					fail: function(res) {
+						if (failFn) failFn(res);
+					},
+					complete: function(res) {
+						if (completeFn) {
+							setTimeout(function() {
+								$this.showT(0);
+								completeFn(res.data);
+							}, 2000)
+						}
+					}
+				});
+			}
 		}
 	}
 </script>

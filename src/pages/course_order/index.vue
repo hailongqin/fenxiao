@@ -37,6 +37,8 @@
 			<!-- <view class="pos-f order_bot txt-c w-100 white ft32 "  @tap="orderCb(order2.dateStatus,order2.id,order2.status,order2.whetherPart,order2.beginTime,order2.endTime)">
 				{{order2.whetherPart ? '查看预约':'我要预约'}}
 			</view> -->
+
+			<!--预约活动新增需求改动-->
 			<view class="y_bottom">
 				<view class="y_bottom_left" @tap="toForward(orderInfo.dateStatus, orderInfo.beginTime, orderInfo.id, orderInfo.repeatCount)">我要预约</view>
 				<view class="y_bottom_right" @tap="lookOrder(orderInfo.whetherPart)">查看预约</view>
@@ -56,7 +58,7 @@
 			return {
 				id: "",
 				// order: {},
-				orderInfo: {},
+				orderInfo: {},//--获取活动基本信息
 				title: ''
 			}
 		},
@@ -116,6 +118,8 @@
 			// 	}
 
 			// },
+			
+			//--我要预约按钮时间跳转：1、活动未开始2、活动已结束3、正常进入预约表单页
 			toForward (dateStatus, beginTime, id, repeatCount) {
 				if (dateStatus == 0) {
 					wx.navigateTo({
@@ -131,6 +135,7 @@
 					})
 				}
 			},
+			//--查看当前预约活动已预约的列表，whetherPart：判断当前用户是否有过预约记录
 			lookOrder (whetherPart) {
 				if (whetherPart) {
 					wx.navigateTo({
@@ -148,9 +153,6 @@
 						}
 					})
 				}
-				// wx.navigateTo({
-				// 	url: '../order_single_list/order_single_list?id=' + id,
-				// })
 			}
 		}
 	}

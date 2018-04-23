@@ -116,16 +116,17 @@ export default {
             SubmitCounts: 0,//是否提交过 0没有 1提交过
             modelShow: false,//模态框是否显示
             disqualification: {},//图片提醒显示状态  -1不提醒  
-            temps: [],//表单数据
+            temps: [],//--表单必填项对应的名字
             testtest: [],//对应下拉框所选择的索引
             id: "",//formId
             formContentId: '',
-            startTime: '',
-            endTime: '',
-            soleList: []
+            startTime: '',//--用户预约的当前时间
+            endTime: '',//--活动截止时间
+            soleList: []//--表单必填项对应的数据
         }
     },
     onLoad(options) {
+        //--获取用户预约的当前时间
         this.getNowDate()
         let userInf = wx.getStorageSync("userInfo")
         if (!userInf.nickName) {
@@ -161,7 +162,6 @@ export default {
             })
         }
         var date = [],
-
         selectIndexs = [],
         disqualifications = {};
         this.submitSuc = false
@@ -184,7 +184,7 @@ export default {
         })
     },
     methods: {
-        //获取当前日期
+        //--获取用户操作的当前日期
         getNowDate(){
             var nowDate = new Date()
             var year = nowDate.getFullYear()
@@ -198,6 +198,8 @@ export default {
             }
             this.startTime = year + '-' + month + '-' + day
         },
+
+
         /**
          * 生命周期函数--监听页面初次渲染完成
          */
@@ -414,7 +416,9 @@ export default {
         // modelCancel() { //提交成功，点击取消
         //     this.modelShow = false
         // },
-        modelConfirm() {//提交成功查看预约
+
+        //--提交成功查看预约，id、temps、soleList都传递给order_succ页
+        modelConfirm() {
             var id = this.formContentId
             let temps = JSON.stringify(this.temps)
             let soleList = JSON.stringify(this.soleList)
