@@ -14,13 +14,13 @@
                         </view>
                         <!--input text -->
                         <view class="c3 ft26" wx:if="{{item.type=='text'}}">
-                            <input class="inputxx" disabled="{{submitSuc}}" placeholder-style="line-height:98rpx;" value="{{item.initValue}}" name="{{'name' + item.id}}" @input="bindinput(index,item.allowNull,$event)" placeholder-class="input_place" />
+                            <input class="inputxx" disabled="{{submitSuc}}" placeholder-style="line-height:98rpx;" value="{{item.initValue}}" name="{{'name' + item.id}}" @input="bindinput(index,item.allowNull,$event)" placeholder-class="input_place" placeholder="{{'请输入'+item.name}}"/>
                         </view>
                         <view class="c3 ft26" wx:if="{{item.type=='textarea'}}">
-                            <textarea class="textarea" placeholder-style="color:#666;line-height:83rpx;font-size:28rpx;" disabled="{{submitSuc}}" value="{{item.initValue}}" name="{{'name' +item.id}}" @input="bindinput(index,item.allowNull,$event)"/>
+                            <textarea class="textarea" placeholder-style="color:#666;line-height:83rpx;font-size:28rpx;" disabled="{{submitSuc}}" value="{{item.initValue}}" name="{{'name' +item.id}}" @input="bindinput(index,item.allowNull,$event)" placeholder="{{'请输入'+item.name}}"/>
                         </view>
                         <view class="c3 ft26" wx:if="{{item.type=='tel'}}">
-                            <input class="inputxx" maxlength="11" disabled="{{submitSuc}}" placeholder-style="line-height:98rpx;" type="number" @input="phone(index,item.allowNull,$event)" value="{{item.initValue}}" name="{{'name' + item.id}}" placeholder-class="input_place" />
+                            <input class="inputxx" maxlength="11" disabled="{{submitSuc}}" placeholder-style="line-height:98rpx;" type="number" @input="phone(index,item.allowNull,$event)" value="{{item.initValue}}" name="{{'name' + item.id}}" placeholder-class="input_place" placeholder="{{'请输入'+item.name}}"/>
                         </view>
                         <!--select date  -->
                         <view wx:if="{{item.type=='date'}}" class="{{dates[index] == '' ? 'ft26 c9':'ft26 c3'}}">
