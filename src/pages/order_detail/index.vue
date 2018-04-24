@@ -8,6 +8,10 @@
                         <view class="input_title ft28 c3">
                             {{item.name}}:
                         </view>
+                        <!--纯文本-->
+                        <view class="c3 ft26" wx:if="{{item.type=='textinfo'}}">
+                            <input class="inputxx" disabled="true" placeholder-style="line-height:98rpx;" value="{{item.initValue}}" name="{{'name' + item.id}}" placeholder-class="input_place" />
+                        </view>
                         <!--input text -->
                         <view class="c3 ft26" wx:if="{{item.type=='text'}}">
                             <input class="inputxx" disabled="{{submitSuc}}" placeholder-style="line-height:98rpx;" value="{{item.initValue}}" name="{{'name' + item.id}}" @input="bindinput(index,item.allowNull,$event)" placeholder-class="input_place" />
@@ -290,9 +294,12 @@ export default {
                 }
                 objec["content"] = datas["name" + String(formName[i].id)]//根据formData键名找到对应的数据  并赋值content
                 data["contents"].push(objec)
-                if ((datas["name" + String(formName[i].id)] == '' || datas["name" + String(formName[i].id)] == null) && !formName[i].allowNull) {
-                    disqualifications[i] = "false"//当数据为长度为0并不允许为空 设置提示图片的显示的状态
+                if (formName[i].type != 'textinfo') {
+                    if ((datas["name" + String(formName[i].id)] == '' || datas["name" + String(formName[i].id)] == null) && !formName[i].allowNull) {
+                        disqualifications[i] = "false"//当数据为长度为0并不允许为空 设置提示图片的显示的状态
+                    }
                 }
+                
                 if (formName[i].type == "tel" && !formName[i].allowNull) {
                     let flag = /^1[34578]\d{9}$/.test((datas["name" + String(formName[i].id)]))
                     if (!flag) {
