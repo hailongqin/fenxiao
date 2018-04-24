@@ -18,6 +18,10 @@
 						<view class="{{item.type=='checkbox'?'input_title static':'input_title'}}">
 							{{item.name}}
 						</view>
+            <!--纯文本-->
+            <view class="ui-field" wx:if="{{item.type=='textinfo'}}">
+							<input class="inputxx" disabled="true" value="{{item.initValue}}" name="{{'name' + item.id}}"/>
+						</view>
 						<!--input text -->
 						<view class="ui-field" wx:if="{{item.type=='text'}}">
 							<input class="inputxx" disabled="{{submitSuc}}" value="{{item.initValue}}" name="{{'name' + item.id}}" @input="bindinput(index,item.allowNull,$event)" placeholder-class="input_place" placeholder="{{'请输入'+item.name}}" />
@@ -330,7 +334,7 @@ export default {
       //时间选择器
       var a = e.detail.value,
         changeDate = [];
-        console.log(this.datas,"datas")
+        // console.log(this.datas,"datas")
       this.dates.forEach(function(item, idx) {
         changeDate.push(item);
       });
@@ -382,6 +386,7 @@ export default {
       var $this = this,
       datas = e.detail.value;
       var formName = $this.temps;
+      console.log(datas,formName)
       var data = {};
       var trueCount = 0; // 数据符合的数量
       this.SubmitCounts = 1; //设置提交状态
@@ -408,16 +413,18 @@ export default {
         //					if((datas["name" + String(formName[i].id)] == '' || datas["name" + String(formName[i].id)] == null) && !formName[i].allowNull){
         //
         //					}
-        if (
-          (datas["name" + String(formName[i].id)] == "" ||
-            datas["name" + String(formName[i].id)] == null) &&
-          !formName[i].allowNull
-        ) {
-          disqualifications[i] = "false"; //当数据为长度为0并不允许为空 设置提示图片的显示的状态
-          $this.tests = formName[i].name;
-          $this.reminderShow = true;
-          return;
+        if (formName[i].type != 'textinfo') {
+          if ((datas["name" + String(formName[i].id)] == "" || datas["name" + String(formName[i].id)] == null) && !formName[i].allowNull) {
+            disqualifications[i] = "false"; //当数据长度为0并不允许为空 设置提示图片的显示的状态
+            $this.tests = formName[i].name;
+            $this.reminderShow = true;
+            return;
+          }
         }
+        
+        // if (formName[i].type == 'textinfo') {
+        //   disqualifications[i] = 'true'
+        // }
         if (formName[i].type == "tel" && !formName[i].allowNull) {
           let flag = /^1[34578]\d{9}$/.test(
             datas["name" + String(formName[i].id)]
@@ -453,6 +460,7 @@ export default {
             "content-type": "application/json;charset=UTF-8"
           },
           success: function(data) {
+            console.log(data,"11111111111111")
             if (data.data.success) {
               $this.onLoad();
               //$this.submitSuc = true //表单所有选项不可点击

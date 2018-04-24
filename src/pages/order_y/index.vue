@@ -55,7 +55,8 @@ export default {
             page: 1,
             rows: [],
             hidden: false,
-            Pullcount: 0
+            Pullcount: 0,
+            isAll:false
         }
     },
     onLoad: function (options) {
@@ -79,10 +80,10 @@ export default {
                                     duration: 2000
                                 })
                                 $this.rows = [],
-                                    $this.page = 1,
-                                    $this.hidden = false,
-                                    $this.isAll = null,
-                                    $this.Pullcount = 0
+                                $this.page = 1,
+                                $this.hidden = false,
+                                $this.isAll = false,
+                                $this.Pullcount = 0
                                 GetList($this)
                             } else {
                                 wx.showToast({
@@ -108,25 +109,26 @@ export default {
             var $this = this
             var index = index
             $this.navsIndex = index,
-                $this.status = index
+            $this.status = index
             $this.rows = [],
-                $this.page = 1,
-                $this.hidden = false,
-                $this.isAll = null
-            if ($this.page == 1 && $this.isAll == null) {
+            $this.page = 1,
+            $this.hidden = false,
+            $this.isAll = false
+            if ($this.page == 1 && $this.isAll == false) {
                 GetList($this)
             }
-        },
-        onReachBottom: function () {
+        }
+        
+    },
+    onReachBottom: function () {
             var $this = this
-            if ($this.isAll == null && $this.Pullcount == 0) {
+            if ($this.isAll == false && $this.Pullcount == 0) {
                 $this.page = $this.page + 1
                 GetList($this)
             } else {
                 $this.hidden = true
             }
         }
-    }
 }
 // pages/course_myorder/course_myorder.js
 var GetList = function ($this) {
@@ -134,24 +136,9 @@ var GetList = function ($this) {
     $this.hidden = false
     $this.$root.get("/basic/plugin/form/user/list", { size: 10, pageNum: $this.page, queryStatus: $this.status, token: token }, (data) => {
         if (data.success) {
-            let list = $this.rows,
-                datas = data.pageInfo.list;
-            if (datas.length == 0) {
-                return
-            }
-            if (list.length == 0) {
-                for (let i = 0; i < datas.length; i++) {
-                    list.push(datas[i])
-                }
-            } else {
-                for (let i = 0; i < datas.length; i++) {
-                    if (list[i].id !== datas[i].id) {
-                        list.push(datas[i])
-                    }
-                }
-            }
-
-            if (data.pageInfo.pageNum == $this.page) {
+             var list = $this.rows;
+            list = list.concat(data.pageInfo.list)
+            if (data.pageInfo.pages == $this.page) {
                 $this.isAll = true
             }
             $this.rows = list

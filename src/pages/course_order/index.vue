@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<view class="w-100" style="">
+		<view class="w-100 content" style="">
 			<view class="header display-flex bg-wt plr30 box-s">
 				<view class="hd-l-img pos-r">
 					<image class='hd-l-img_image' src="{{orderInfo.fullCover}}" mode="aspectFill" />
@@ -161,12 +161,10 @@
 	.page {
 		background: #FAFAF9;
 	}
-	
-	.container {
-		width: 100%;
-		padding: 20rpx 20rpx 30rpx 20rpx;
+	.content {
+		overflow: scroll;
+		padding-bottom:30rpx;
 	}
-	
 	.header {
 		padding-top: 43rpx;
 		padding-bottom: 50rpx;
@@ -319,11 +317,13 @@
 		width:100%;
 		position: fixed;
 		left:0;
-		bottom: 30rpx;
+		bottom: 0rpx;
 		height:88rpx;
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		background: #ffffff;
+		padding:22rpx 0 30rpx;
 	}
 	.y_bottom_left{
 		text-align: center;

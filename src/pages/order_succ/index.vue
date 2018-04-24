@@ -9,6 +9,10 @@
                 <view class="input_title ft28 c3">
                     {{item.name}}：
                 </view>
+                <!--纯文本 -->
+                <view class=" ft26 input_content c3" wx:if="{{item.type=='textinfo'}}">
+                    {{formContent[index].content}}
+                </view>
                 <!--input text -->
                 <view class=" ft26 input_content c3" wx:if="{{item.type=='text'}}">
                     {{formContent[index].content}}
