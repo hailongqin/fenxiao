@@ -10,7 +10,7 @@
                         </view>
                         <!--纯文本-->
                         <view class="c3 ft26" wx:if="{{item.type=='textinfo'}}">
-                            <input class="inputxx" disabled="true" placeholder-style="line-height:98rpx;" value="{{item.initValue}}" name="{{'name' + item.id}}" placeholder-class="input_place" />
+                            <textarea class="textarea" placeholder-style="color:#666;line-height:83rpx;font-size:28rpx;" disabled="true" value="{{item.initValue}}" name="{{'name' +item.id}}"/>
                         </view>
                         <!--input text -->
                         <view class="c3 ft26" wx:if="{{item.type=='text'}}">

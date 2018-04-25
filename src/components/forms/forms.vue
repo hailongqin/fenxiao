@@ -20,7 +20,7 @@
 						</view>
             <!--纯文本-->
             <view class="ui-field" wx:if="{{item.type=='textinfo'}}">
-							<input class="inputxx" disabled="true" value="{{item.initValue}}" name="{{'name' + item.id}}"/>
+              <textarea maxlength="-1" class="textarea" disabled="true" value="{{item.initValue}}" name="{{'name' +item.id}}" placeholder-class="input_place"/>
 						</view>
 						<!--input text -->
 						<view class="ui-field" wx:if="{{item.type=='text'}}">

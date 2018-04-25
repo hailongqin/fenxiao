@@ -103,8 +103,12 @@ export default {
         for (let i = 0; i < that.temps.length; i++) {
             if (formData[i].type == "checkbox") {
                 let details =  formData[i].content;
-                details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g,"")
-
+                if (typeof details == 'object') {
+                    details = JSON.stringify(details)
+                    details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g,"")
+                } else {
+                    details = details.replace(/([""[=?$\x22])|([[=?$\x22])|]/g,"")
+                }
                 formData[i].content = details.split(",")
             }
             if (that.temps[i].id == formData[i].tempId) {
