@@ -194,7 +194,7 @@ export default {
     //--获取用户预约的当前时间
 	  that.getNowDate()
     var userInf = wx.getStorageSync("userInfo");
-    if (!userInf.nickName) {
+    if (userInf && !userInf.nickName) {
       wx.login({
         success: function success(res) {
           wx.getUserInfo({

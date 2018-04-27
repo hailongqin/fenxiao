@@ -16,7 +16,7 @@
 <script>
 export default {
     config: {
-        "navigationBarTitleText": "单个预约列表"
+        "navigationBarTitleText": "预约列表"
     },
     data() {
         return {
