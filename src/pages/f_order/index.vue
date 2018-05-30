@@ -46,13 +46,15 @@
 
                 <!-- ordType == 1 砍价订单-->
                 <view class="bottom-pay" wx:if="{{itemBox.ordType}}">
-                    <view class="right">共{{itemBox.totalNum}}件商品 合计： ￥
-                    <view class="num">{{((itemBox.totalAmount * 100) - (itemBox.bargainAmount*100))/100}}</view>(包邮)</view>
+                  <view class="right">
+                    共{{itemBox.totalNum}}件商品 合计： ￥<view class="num">{{((itemBox.totalAmount * 100) - (itemBox.bargainAmount*100))/100}}</view>
+                  </view>
                 </view>
                 <!-- ordType == 1 分享订单  -->
                 <view class="bottom-pay" wx:else>
-                    <view class="right">共{{itemBox.totalNum}}件商品 合计： ￥
-                    <view class="num">{{itemBox.totalAmount}}</view>(包邮)</view>
+                  <view class="right">
+                    共{{itemBox.totalNum}}件商品 合计： ￥<view class="num">{{itemBox.totalAmount}}</view>
+                  </view>
                 </view>
 
                 <view class="btn">

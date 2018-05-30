@@ -134,8 +134,8 @@
 				//测试
 				apiServer:'https://gw-test.vdongchina.com/',
 				// appid:"ZzzudEDK0qRxmt7sz5W",
-				// appid:"Sl41przpIlWpdSjpnTw",
-				appid: 'EvnSLqpaMYZMjmyT52w',
+				appid:"Sl41przpIlWpdSjpnTw",
+				// appid: 'EvnSLqpaMYZMjmyT52w',
 				variate:'',
 
 				//appid:"r3w0nSJqaAIkrBTY6DZ",

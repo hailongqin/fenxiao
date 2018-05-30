@@ -3,7 +3,7 @@
     <view class="car" @tap="shopcart">个人中心</view>
     <view class="car" @tap="msg">消息</view>
     <view class="car" @tap="toCar">购物车</view>
-	<!-- <distributionList></distributionList> -->
+	<distributionList></distributionList>
     <!-- <distributionDealer></distributionDealer> -->
     <!-- <new-prolists></new-prolists> -->
     <forms></forms>
@@ -12,7 +12,7 @@
 </template>
 <script>
 // import newProlists from '../../components/newProlists/newProlists'
-// import distributionList from "../../components/distributionList/distributionList"		
+import distributionList from "../../components/distributionList/distributionList"		
 // import distributionDealer from "../../components/distributionDealer/distributionDealer"	
 import forms from '../../components/forms/forms'
 import bespeak from '../../components/bespeak/bespeak'
@@ -22,7 +22,7 @@ export default {
     },
     components:{
         // newProlists:newProlists,
-    	// distributionList:distributionList,
+    	distributionList:distributionList,
         // distributionDealer:distributionDealer,
         forms: forms,
         bespeak: bespeak
