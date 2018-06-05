@@ -96,7 +96,7 @@
         
         <view class="bottom-pay">
             <view class="left">合计金额： ￥<view class="num">{{totalAmount}}</view></view>
-            <view class="right" @tap="pay">立即支付</view>
+            <view class="right" @tap="toPay">立即支付</view>
         </view>
         <view class="discount-dialog" wx:if="{{flag1}}">
             <view class="content">
@@ -253,7 +253,7 @@ export default {
   },
   methods: {
     selfPick() {
-      var that = this;
+      var that = this
       wx.showModal({
         title: "提示",
         content: "买家自提，需买家自己到卖家指定地点取货！",
@@ -360,7 +360,7 @@ export default {
       }
     },
     //支付
-    pay() {
+    toPay() {
       var that = this;
       if (that.selfPick) {
         if (that.ordno) {
@@ -404,7 +404,7 @@ export default {
                 });
                 // wx.redirectTo({
                 //     url:"../membershipCardPay/membershipCardPay?id=" + that.orderId + "&price=" + that.totalAmount + "&isType=2"
-                // });
+                // })
               } else {
                 wx.showToast({
                   title: "支付接口异常",
@@ -413,22 +413,6 @@ export default {
                   mask:true
                 });
               }
-              // wx.requestPayment({
-              // 	'timeStamp': res.data.object.timeStamp,
-              // 	'nonceStr': res.data.object.nonceStr,
-              // 	'package': res.data.object.package,
-              // 	'signType': res.data.object.signType,
-              // 	'paySign': res.data.object.paySign,
-              // 	success(rst) {
-              //
-              // 		wx.redirectTo({
-              // 			url:'../f_orderdetail/f_orderdetail?orderId='+ that.orderId
-              // 		})
-              // 	},
-              // 	fail(rst) {
-              //
-              // 	}
-              // })
             }
           });
         }

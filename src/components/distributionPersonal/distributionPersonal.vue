@@ -81,19 +81,19 @@
           <view class="left">会员卡</view>
         </view>
         <view class="recommend-bottom">
-          <view class="item" @tap="pageJump('../recharge/recharge')">
+          <view class="item" @tap="toMemberPage('../recharge/recharge')">
             <image class="img" src="http://image.vdongchina.com/M00/06/97/ZSUkmVof9iiEWu4IAAAAAPO3IUU530.png"></image>
             <view class="txt">余额充值</view> 
           </view>
-          <view class="item" @tap="pageJump('../rechargeRecord/rechargeRecord')">
+          <view class="item" @tap="toMemberPage('../rechargeRecord/rechargeRecord')">
             <image class="img" src="http://image.vdongchina.com/M00/06/97/ZSUkmVof9lmEbm_yAAAAAMy17nA754.png"></image>
             <view class="txt">充值记录</view> 
           </view>
-          <view class="item" @tap="pageJump('../organizingData/organizingData')">
+          <view class="item" @tap="toMemberPage('../organizingData/organizingData')">
             <image class="img" src="http://image.vdongchina.com/M00/06/97/ZSUkmVof9nOEJbnWAAAAAE9c5LU392.png"></image>
             <view class="txt">完善资料</view> 
           </view>
-          <view class="item" @tap="pageJump('../passwordManage/passwordManage')">
+          <view class="item" @tap="toMemberPage('../passwordManage/passwordManage')">
             <image class="img" src="http://image.vdongchina.com/M00/06/97/ZSUkmVof9omEDNZrAAAAAOq4iHM689.png"></image>
             <view class="txt">密码管理</view> 
           </view>
@@ -382,6 +382,27 @@ export default {
     
   },
   methods:{
+    toMemberPage (link) {
+      //商家是否开启会员卡功能
+      if (true) {
+        //是否是会员
+        if (true) {
+          wx.navigateTo({
+            url: pageLink
+          })
+        } else {
+          wx.navigateTo({
+            url: '../organizingData/organizingData'
+          })
+        }
+      } else {
+        wx.showToast({
+          title: '商家未开启会员卡相关功能',
+          icon: 'none',
+          duration: 2000
+        })
+      }
+    },
   	pageJump(pageLink){
       wx.navigateTo({
         url: pageLink

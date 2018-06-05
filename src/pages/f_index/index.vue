@@ -6,7 +6,7 @@
 	<distributionList></distributionList>
     <!-- <distributionDealer></distributionDealer> -->
     <!-- <new-prolists></new-prolists> -->
-    <forms></forms>
+    <!-- <forms></forms> -->
     <bespeak></bespeak>
 </view>
 </template>
@@ -14,7 +14,7 @@
 // import newProlists from '../../components/newProlists/newProlists'
 import distributionList from "../../components/distributionList/distributionList"		
 // import distributionDealer from "../../components/distributionDealer/distributionDealer"	
-import forms from '../../components/forms/forms'
+// import forms from '../../components/forms/forms'
 import bespeak from '../../components/bespeak/bespeak'
 export default {
     config: {
@@ -24,7 +24,7 @@ export default {
         // newProlists:newProlists,
     	distributionList:distributionList,
         // distributionDealer:distributionDealer,
-        forms: forms,
+        // forms: forms,
         bespeak: bespeak
     },
     data () {

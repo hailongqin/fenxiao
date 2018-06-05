@@ -73,15 +73,12 @@ export default {
     onLoad() {
         var that = this
         that.$root.post("/basic/newMember/applet/pview?openid=" + that.$root.globalData.openid, {}, function(data) {
-            console.log(data)
+
             if (data.success) {
                 that.cartInfo = data.obj
-
-                console.log(that.cartInfo)
             }
         })
         that.$root.post("/basic/newMember/applet/viewById?openid=" + that.$root.globalData.openid, {}, function(data) {
-            console.log(data)
             if (data.obj != null) {
                 that.isExist = true
                 that.userName = data.obj.name
@@ -96,11 +93,7 @@ export default {
 
     },
     methods: {
-        // onLoad: function(options) {
-        //     console.log(wx.canIUse('button.open-type.contact'))
-        //     console.log(util.formatTime(new Date()).substring(0, 10))
-        //     this.endDate = util.formatTime(new Date()).substring(0, 10)
-        // },
+
         revamp() {
             var that = this
             that.$root.post("/basic/newMember/applet/update", { id: that.id, name: that.userName, code: that.cartInfo.codeNum, borth: that.dates + " 00:00:00" }, function(data) {
@@ -139,10 +132,6 @@ export default {
         getPhoneNumber(e) {
             var that = this
             that.$root.globalData.userInfo
-            console.log(e)
-            console.log(e.detail.errMsg)
-            console.log(e.detail.iv)
-            console.log(e.detail.encryptedData)
             if (that.userName == '') {
                 wx.showToast({
                     title: '请填写姓名',
@@ -159,34 +148,35 @@ export default {
                 })
                 return;
             }
-            if (that.$root.globalData.userInfo.gender == 1) { //微尘端 男为0女为1 和 微信端相反
-                that.$root.globalData.userInfo.gender = 0
-            } else {
-                that.$root.globalData.userInfo.gender = 1
-            }
-            console.log(that.$root.globalData.userInfo, "11111111111111111111111")
+            // console.log(that.$root.globalData.userInfo, "修改之前")
+            // // if (that.$root.globalData.userInfo.gender == 1) { //微尘端 男为0女为1 和 微信端相反
+            // //     that.$root.globalData.userInfo.gender = 0
+            // // } else {
+            // //     that.$root.globalData.userInfo.gender = 1
+            // // }
+            // console.log(that.$root.globalData.userInfo, "修改之后")
             wx.login({
                 success(res) {
                     if (res.code) {
                         that.$root.post("/basic/newMember/applet/getWxPkCS7", { iv: e.detail.iv, encryptedData: e.detail.encryptedData, code: res.code }, function(resData) {
-                            console.log(resData)
-                            console.log(that.$root.globalData.userInfo)
                             var userInfo = that.$root.globalData.userInfo
                             if (resData.success) {
                                 let datas = JSON.parse(resData.obj.data);
                                 that.$root.post("/basic/newMember/applet/save", { name: that.userName, code: null, mobile: datas.phoneNumber, borth: that.dates + " 00:00:00", sex: userInfo.gender, openId: that.$root.globalData.openid, nickname: that.$root.globalData.userInfo.nickName, }, function(data) {
-                                    console.log(data)
                                     if (data.success) {
                                         wx.showToast({
                                             title: '注册成功',
                                             icon: 'success',
                                             duration: 2000
                                         })
-                                        setTimeout(function() {
-                                            wx.navigateBack({
-                                                delta: 1
-                                            })
-                                        }, 2000)
+                                        // setTimeout(function() {
+                                        //     wx.navigateBack({
+                                        //         delta: 1
+                                        //     })
+                                        // }, 2000)
+                                        wx.navigateTo({
+                                          url: '../recharge/recharge'
+                                        })
                                     } else {
                                         wx.showToast({
                                             title: '注册失败',
