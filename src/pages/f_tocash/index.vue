@@ -79,7 +79,11 @@ export default {
         toCash(){
             //提现接口
             var that =this
-            if(that.inputTxt<that.allNum){
+            wx.showLoading({
+                title: '正在拼命加载中',
+                mask: true
+            })
+            if(that.inputTxt<=that.allNum){
                 if(that.inputTxt<that.cashMinLimit){
                     wx.showModal({
                         title: '提示',
@@ -105,6 +109,9 @@ export default {
                         },
                         success: function(res) {
                             if(res.data.code =="200"){
+                                wx.hideLoading()
+                                that.inputTxt = ''
+                                that.isInput = false
                                 wx.showToast({
                                     title: '提现成功',
                                     icon: 'success',
@@ -130,6 +137,7 @@ export default {
                                     }
                                 })
                             }else{
+                                wx.hideLoading()
                                 wx.showToast({
                                     title: '提现失败',
                                     icon: 'success',
@@ -141,6 +149,7 @@ export default {
                     })
                 }
             }else{
+                wx.hideLoading()
                 if(that.inputTxt<that.cashMinLimit || that.inputTxt>that.cashLimit){
                     wx.showModal({
                         title: '提示',
