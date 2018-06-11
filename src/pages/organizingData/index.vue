@@ -6,7 +6,7 @@
             <image class='headerImg pos-a' src="http://image.vdongchina.com/M00/02/C1/ZSUkmVnOBCWEYM24AAAAABf-gW8028.png"></image>
             <view class='cartNumber pos-r display-flex'>
                 <image class='cartNumberImageOn' src='http://image.vdongchina.com/M00/03/3B/ZSUkmVngJRWEIMiDAAAAAEh4HrQ383.png'></image>
-                <view class='ft34 white ml20 grade'>VIP会员当前等级为{{cartInfo.leverName}}</view>
+                <view class='ft34 white ml20 grade'>VIP会员当前等级为：{{cartInfo.codeName}}</view>
             </view>
         </view>
         <view class='header pos-r box-s' wx:else>
@@ -27,7 +27,7 @@
         </view>
         <form class='userInfo box-s'>
             <view class='userName display-flex bg-wt'>
-                <text class='ft32 c6'>姓名：</text>
+                <text class='ft32 c6 memberName'>姓名：</text>
                 <input class='userInfoInput ft32' name="userName" placeholder='（必填）' value="{{userName}}" @input='userName' placeholder-class='ft32 c6'></input>
             </view>
             <view class='userName display-flex bg-wt'>
@@ -237,8 +237,6 @@ export default {
     padding: 30rpx 0;
 }
 
-.grade {}
-
 .balance {
     margin-left: 66rpx;
 }
@@ -325,7 +323,9 @@ export default {
     padding: 0 20rpx;
     margin-bottom: 1px;
 }
-
+.memberName{
+    width: 115rpx;
+}
 .userInfoInput {
     height: 78rpx;
     line-height: 78rpx;

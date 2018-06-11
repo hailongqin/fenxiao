@@ -5,7 +5,7 @@
             <view class="top">
                 <view class="to-pay" wx:if="{{(shippingWay != 2 || shippingWay == null) && ordState == 0 && payState == 0 && flag}}">
                     <view class="t" wx:if="{{ordType}}">待支付：{{((totalAmount*100)-(bargainAmount*100)) / 100}}元</view>
-                    <view class="t" wx:else >{{totalAmount-discountNum}}元   </view> 
+                    <view class="t" wx:else >{{totalAmount}}元   </view> 
                     <view class="m">请在{{clock}}内完成支付</view>
                     <view class="b">
                         <view class="cancel" @tap="toCancel(id)">取消订单</view>
@@ -13,7 +13,7 @@
                     </view>
                 </view>
                 <view class="to-pay" wx:if="{{shippingWay == 2 && ordState == 0 && payState == 0 && flag}}">
-                    <view class="t">待支付：{{totalAmount-discountNum}}元(自提)</view>
+                    <view class="t">待支付：{{totalAmount}}元(自提)</view>
                     <view class="m">请在{{clock}}内完成支付</view>
                     <view class="b">
                         <view class="cancel" @tap="toCancel(id)">取消订单</view>
@@ -206,13 +206,13 @@
 
                 <!-- ordType == 1 砍价订单-->
                 <view class="f_need_pay"  wx:if="{{ordType}}"> 
-                    <view class="l">实付款(微信支付)</view>
+                    <view class="l">实付款{{payMethod}}</view>
                     <view class="r">¥ {{((totalAmount*100)-(bargainAmount*100)) / 100}}</view>
                 </view>
-                <!-- ordType == 1 分享订单  -->
+                <!-- ordType == 1 分销订单  -->
                 <view class="f_need_pay" wx:else>
-                    <view class="l">实付款(微信支付)</view>
-                    <view class="r">¥{{totalAmount - discountNum}}</view>
+                    <view class="l">实付款{{payMethod}}</view>
+                    <view class="r">¥{{totalAmount}}</view>
                 </view>
             </view>
             
@@ -272,7 +272,8 @@ export default {
             flowFees:0,//运费
             prePrice:'',//优惠前价格
             ordType:0,
-            bargainAmount:0
+            bargainAmount:0,
+            payMethod: ''//获取支付方式，1、余额支付；2、微信支付
         }
     },
     // onLoad(e){
@@ -280,8 +281,7 @@ export default {
     	
     // },
     onLoad(e){
-        console.log(e,"onLoad")
-        this.id = e.orderId
+        this.id = e.ordId.toString()
         var that = this
         wx.request({
            url:that.$root.apiServer + that.$root.appid + that.$root.variate + '/basic/client/distribution/order/detail/'+that.id,
@@ -296,7 +296,7 @@ export default {
            },
            success: function(res) {
            		if(res.data.code =="200"){
-                       console.log(res)
+                    console.log(res)
                     that.payState = res.data.object.payState//支付状态
                     that.ordState = res.data.object.ordState//订单状态
                     that.shippingWay = res.data.object.shippingWay//自提或商家配送
@@ -422,7 +422,14 @@ export default {
                     if(res.data.object.expressId){
                         that.expressId = res.data.object.expressId
                     }
-
+                    //获取支付方式
+                    if (res.data.object.payment) {
+                        if (res.data.object.payment == 2) {
+                            that.payMethod = '(余额支付)'
+                        } else {
+                            that.payMethod = '(微信支付)'
+                        }
+                    }
                     that.flag = 1//接口数据调取完全将订单状态栏置为显示状态
            		}else{
                     wx.showLoading({

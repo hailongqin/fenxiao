@@ -76,7 +76,7 @@
       </view>
 
       
-     <view class="bottom">
+     <view class="bottom" wx:if="{{memberCardOpen}}">
         <view class="recommend-top">
           <view class="left">会员卡</view>
         </view>
@@ -214,6 +214,20 @@ export default {
        "navigationBarBackgroundColor":"#262833",
         "navigationBarTextStyle":"white"
 	},
+  editorConfig: {
+    memberCardOpen: {
+      label : '是否开启会员卡功能',
+      type : 'Boolean',
+      value : true ,
+      director : 'switch2'
+    },
+  },
+  props:{
+    memberCardOpen: {
+      type: Boolean,
+      default: true
+    }
+  },
   data () {
     return {
       flag:1,
@@ -247,7 +261,9 @@ export default {
       messageActive:1,
       shopcartActive:1,
       personalActive:0,
-	      messageNum:0      
+	    messageNum:0,
+      CardOpen: true,//判断商家是否开启会员卡功能
+      isMember: false//判断用户是否是会员
     }
   },
   async onShow(){
@@ -343,50 +359,77 @@ export default {
         }
       }
     })
-      wx.request({
-        url:this.$root.apiServer + this.$root.appid + this.$root.variate + '/basic/client/distribution/notice/noticeStatistics',
-        data:{
-            token:that.$root.globalData.token,
-            pid:that.$root.globalData.pid
-        },
-        method:"GET",
-        header: {
-            'content-type': 'application/x-www-form-urlencoded'
-        },
-        success: function(res) {
-        	var system,twitter,commission
-        	if(res.data.object && res.data.object.SYSTEM){
-        		system = parseInt(res.data.object.SYSTEM.count) 
-        	}else{
-        		system = 0
-        	}
-        	if(res.data.object && res.data.object.TWITTER){
-        		twitter = parseInt(res.data.object.TWITTER.count) 
-        	}else{
-        		twitter =0
-        	}
-        	if(res.data.object && res.data.object.COMMISSION){
-        		commission = parseInt(res.data.object.COMMISSION.count) 
-        	}else{
-        		commission =0
-        	}   
-          var messageNum = system + twitter+commission        
-            if(messageNum == 0){
-            	that.messageNum = false
-            }else{
-            	that.messageNum =messageNum 
-            }
+    wx.request({
+      url:this.$root.apiServer + this.$root.appid + this.$root.variate + '/basic/client/distribution/notice/noticeStatistics',
+      data:{
+          token:that.$root.globalData.token,
+          pid:that.$root.globalData.pid
+      },
+      method:"GET",
+      header: {
+          'content-type': 'application/x-www-form-urlencoded'
+      },
+      success: function(res) {
+        var system,twitter,commission
+        if(res.data.object && res.data.object.SYSTEM){
+          system = parseInt(res.data.object.SYSTEM.count) 
+        }else{
+          system = 0
         }
-    })   
-    
-    
+        if(res.data.object && res.data.object.TWITTER){
+          twitter = parseInt(res.data.object.TWITTER.count) 
+        }else{
+          twitter =0
+        }
+        if(res.data.object && res.data.object.COMMISSION){
+          commission = parseInt(res.data.object.COMMISSION.count) 
+        }else{
+          commission =0
+        }   
+        var messageNum = system + twitter+commission        
+          if(messageNum == 0){
+            that.messageNum = false
+          }else{
+            that.messageNum =messageNum 
+          }
+      }
+    })
+    //判断商家是否启用会员卡
+    wx.request({
+      url: that.$root.apiServer + that.$root.appid + that.$root.variate + '/basic/newMember/applet/hasBaseCode',
+      method: "GET",
+      header: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
+      success: function(res) {
+        if(res.statusCode === 200) {
+          let data = res.data
+          that.CardOpen = data.obj
+          if(that.CardOpen) {
+            wx.request({
+              url: that.$root.apiServer + that.$root.appid + that.$root.variate + '/basic/newMember/applet/viewById?openid=' + that.$root.globalData.openid,
+              method: "GET",
+              header: {
+                'content-type': 'application/x-www-form-urlencoded'
+              },
+              success: function(res) {
+                let data = res.data
+                that.isMember = data.obj
+              }
+            })
+          } else {
+            return
+          }
+        }
+      }
+    })  
   },
   methods:{
-    toMemberPage (link) {
+    toMemberPage (pageLink) {
       //商家是否开启会员卡功能
-      if (true) {
+      if(this.CardOpen) {
         //是否是会员
-        if (true) {
+        if (this.isMember) {
           wx.navigateTo({
             url: pageLink
           })
@@ -395,7 +438,7 @@ export default {
             url: '../organizingData/organizingData'
           })
         }
-      } else {
+      }else {
         wx.showToast({
           title: '商家未开启会员卡相关功能',
           icon: 'none',

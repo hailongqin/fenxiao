@@ -225,7 +225,7 @@ export default {
         return;
       }
       wx.navigateTo({
-        url: "../f_orderdetail/f_orderdetail?orderId=" + id
+        url: "../f_orderdetail/f_orderdetail?ordId=" + id
       });
     },
     // 查看物流

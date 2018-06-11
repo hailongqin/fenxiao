@@ -281,7 +281,6 @@ export default {
         if(!name){
           wx.chooseAddress({
             success: function(res) {
-              console.log(res)
               var f_userName = res.userName;
               var f_telNumber = res.telNumber;
               var f_address = res.provinceName + res.cityName + res.countyName + res.detailInfo;
@@ -303,7 +302,7 @@ export default {
                   success: function(res) {
                     if (res.data.code == 200) {
                       if (res.data.object.shipPrice && res.data.object.shipPrice>0) {
-                          console.log(res,"beijing")
+                          // console.log(res,"beijing")
                           that.userName = f_userName;
                           that.telNumber = f_telNumber;
                           that.address = f_address;
@@ -313,7 +312,7 @@ export default {
                           that.totalAmount = that.totalAmount.toFixed(2);
                           that.since = 0;
                       }else{
-                          console.log(res,"包邮")
+                          // console.log(res,"包邮")
                           that.userName = f_userName;
                           that.telNumber = f_telNumber;
                           that.address = f_address;
@@ -365,7 +364,7 @@ export default {
       if (that.selfPick) {
         if (that.ordno) {
           wx.request({
-            url:that.$root.apiServer + that.$root.appid + that.$root.variate + "/basic/client/distribution/order/pay/" + that.ordno + that.couponId,
+            url:that.$root.apiServer + that.$root.appid + that.$root.variate + "/basic/client/distribution/order/prepay/" + that.ordno + that.couponId,
             data: {
               token: that.$root.globalData.token,
               orderId: that.ordno,
@@ -382,36 +381,39 @@ export default {
             },
             success: function(res) {
               if (res.data.code == 200) {
-                that.orderId = res.data.object.orderId;
-                wx.requestPayment({
-                  timeStamp: res.data.object.timeStamp,
-                  nonceStr: res.data.object.nonceStr,
-                  package: res.data.object.package,
-                  signType: res.data.object.signType,
-                  paySign: res.data.object.paySign,
-                  success(rst) {
-                    wx.redirectTo({
-                      url:
-                        "../f_orderdetail/f_orderdetail?orderId=" + that.orderId
-                    });
-                  },
-                  fail(rst) {
-                    wx.redirectTo({
-                      url:
-                        "../f_order/f_order?type=2"
-                    });
-                  }
-                });
-                // wx.redirectTo({
-                //     url:"../membershipCardPay/membershipCardPay?id=" + that.orderId + "&price=" + that.totalAmount + "&isType=2"
+                if(res.data.success) {
+                  let payId = res.data.object.id
+                  wx.redirectTo({
+                    url:"../membershipCardPay/membershipCardPay?price=" + that.totalAmount + "&ordno=" + payId + "&id=" + that.ordno + "&isType=2"
+                  })
+                }
+                // that.orderId = res.data.object.orderId;
+                // wx.requestPayment({
+                //   timeStamp: res.data.object.timeStamp,
+                //   nonceStr: res.data.object.nonceStr,
+                //   package: res.data.object.package,
+                //   signType: res.data.object.signType,
+                //   paySign: res.data.object.paySign,
+                //   success(rst) {
+                //     wx.redirectTo({
+                //       url:
+                //         "../f_orderdetail/f_orderdetail?orderId=" + that.orderId
+                //     });
+                //   },
+                //   fail(rst) {
+                //     wx.redirectTo({
+                //       url:
+                //         "../f_order/f_order?type=2"
+                //     });
+                //   }
                 // })
               } else {
                 wx.showToast({
-                  title: "支付接口异常",
+                  title: "接口异常",
                   icon: "loading",
                   duration: 2000,
                   mask:true
-                });
+                })
               }
             }
           });
@@ -419,7 +421,7 @@ export default {
       } else if (that.userName) {
         if (that.ordno) {
           wx.request({
-            url:this.$root.apiServer + this.$root.appid + this.$root.variate + "/basic/client/distribution/order/pay/" + that.ordno + that.couponId,
+            url:this.$root.apiServer + this.$root.appid + this.$root.variate + "/basic/client/distribution/order/prepay/" + that.ordno + that.couponId,
             data: {
               token: that.$root.globalData.token,
               orderId: that.ordno,
@@ -436,53 +438,17 @@ export default {
             },
             success: function(res) {
               if (res.data.code == 200) {
-                that.orderId = res.data.object.orderId;
-                wx.requestPayment({
-                  timeStamp: res.data.object.timeStamp,
-                  nonceStr: res.data.object.nonceStr,
-                  package: res.data.object.package,
-                  signType: res.data.object.signType,
-                  paySign: res.data.object.paySign,
-                  success(rst) {
-                    wx.redirectTo({
-                      url:
-                        "../f_orderdetail/f_orderdetail?orderId=" + that.orderId
-                    });
-                  },
-                  fail(rst) {
-                    wx.redirectTo({
-                      url:
-                        "../f_order/f_order?type=2"
-                    });
-                  }
-                });
-                // wx.redirectTo({
-                //     url:"../membershipCardPay/membershipCardPay?id=" + that.orderId + "&price=" + that.totalAmount + "&isType=2"
-                // });
+                let payId = res.data.object.id
+                wx.redirectTo({
+                  url:"../membershipCardPay/membershipCardPay?price=" + that.totalAmount + "&ordno=" + payId + "&id=" + that.ordno + "&isType=2"
+                })
               } else {
                 wx.showToast({
-                  title: "支付接口异常",
+                  title: "接口异常",
                   icon: "loading",
                   duration: 2000
-                });
+                })
               }
-              //   wx.requestPayment({
-              //   	'timeStamp': res.data.object.timeStamp,
-              //   	'nonceStr': res.data.object.nonceStr,
-              //   	'package': res.data.object.package,
-              //   	'signType': res.data.object.signType,
-              //   	'paySign': res.data.object.paySign,
-              //   	success(rst) {
-
-              //   		wx.redirectTo({
-              //   			url:'../f_orderdetail/f_orderdetail?orderId='+ that.orderId
-
-              //   		})
-              //   	},
-              //   	fail(rst) {
-
-              //   	}
-              //   })
             }
           });
         }

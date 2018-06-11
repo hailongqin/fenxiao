@@ -100,12 +100,13 @@ export default {
 			codes: "", //输入的密码
 			inCode: true,
 			isExist: false, //没有密码
-			istype: 0, //0 为一键购  1为美业
+			istype: 0, //0 为一键购  1为美业 2是分销
 			payUrl: "",
 			navUrl: "",
 			fewers: false, //展开收起活动
 			cartOpen: false,//是否开启会员卡
-			payType: true
+			payType: true,
+			distributionOrderId: ''//记录分销订单id
 		}
 	},
 	onLoad(options) {
@@ -113,6 +114,9 @@ export default {
 		that.shopId = options.id
 		that.shopPrice = options.price
 		that.istype = options.isType
+		if (options.ordno) {
+		  that.distributionOrderId = options.ordno.toString()
+		}
 		that.$root.post("/basic/newMember/applet/pview?openid=" + that.$root.globalData.openid, {}, function(data) { //个人会员卡信息
 			if (data.success) {
 				that.cartInfo = data.obj
@@ -169,6 +173,9 @@ export default {
 		if (that.istype == 0) {
 			that.payUrl = "/basic/api/fBalancePay/toPay" //支付地址
 			that.navUrl = "../orderOk/orderOk" //跳转路径
+		} else if (that.istype ==2) {
+			that.payUrl = "/basic/client/distribution/order/bpay"
+			that.navUrl = "../f_orderdetail/f_orderdetail"
 		} else {
 			that.payUrl = "/basic/api/bBalancePay/toPay"
 			that.navUrl = "../orderpaySuccess/orderpaySuccess"
@@ -226,10 +233,15 @@ export default {
 									ordId: that.shopId
 								}, function(data) {
 									if (data.success) {
-										
-										wx.redirectTo({
-											url: that.navUrl + "?ordId=" + that.shopId
-										})
+										if (that.distributionOrderId) {
+											wx.redirectTo({
+												url: that.navUrl + "?ordId=" + that.distributionOrderId
+											})
+										} else {
+											wx.redirectTo({
+												url: that.navUrl + "?ordId=" + that.shopId
+											})
+										}
 									} else {
 										wx.showModal({
 											title: '提示',
@@ -277,9 +289,15 @@ export default {
 						}, function(data) {
 							if (data.success) {
 								that.payType = false
-								wx.redirectTo({
-									url: that.navUrl + "?ordId=" + that.shopId
-								})
+								if (that.distributionOrderId) {
+									wx.redirectTo({
+										url: that.navUrl + "?ordId=" + that.distributionOrderId
+									})
+								} else {
+									wx.redirectTo({
+										url: that.navUrl + "?ordId=" + that.shopId
+									})
+								}
 							} else {
 								wx.showModal({
 									title: '提示',
@@ -321,45 +339,73 @@ export default {
 			let ispayUrl = that.payUrl
 			if (that.istype == 0) {
 				ispayUrl = "/basic/api/pay/toPay"
+			} else if (that.istype == 2) {
+				ispayUrl = "/basic/client/distribution/order/wxpay"
 			} else {
 				ispayUrl = "/basic/api/bPay/toPay"
 			}
 			if (that.selectPayStatus == 2) { //微信支付
 				wx.request({
-					url: this.$root.apiServer + that.$root.appid + ispayUrl,
+					url: that.$root.apiServer + that.$root.appid + ispayUrl,
 					data: {
 						token: getApp().globalData.token,
-						ordId: that.shopId,
+						ordId: that.shopId
 					},
 					method: 'POST',
 					header: {
 						'Content-Type': 'application/x-www-form-urlencoded'
 					},
 					success(res) {
-						if (res.data.code == "100" || res.data.success) {
-							//微信支付
-
-							wx.requestPayment({
-								'timeStamp': res.data.data.timeStamp,
-								'nonceStr': res.data.data.nonceStr,
-								'package': res.data.data.package,
-								'signType': res.data.data.signType,
-								'paySign': res.data.data.paySign,
-								success(res) {
-									wx.redirectTo({
-										url: that.navUrl + "?ordId=" + that.shopId
-									})
-								},
-								fail(res) {
-								}
-							})
+						//分销支付返回结果
+						if(that.istype == 2){
+							if(res.data.success){
+								wx.requestPayment({
+									'timeStamp': res.data.object.timeStamp,
+									'nonceStr': res.data.object.nonceStr,
+									'package': res.data.object.package,
+									'signType': res.data.object.signType,
+									'paySign': res.data.object.paySign,
+									success(res) {
+										wx.redirectTo({
+											url: that.navUrl + "?ordId=" + that.distributionOrderId
+										})
+									},
+									fail(res) {
+									}
+								})
+							}else{
+								wx.showModal({
+									title: '提示',
+									showCancel: false,
+									content: '系统异常，无法支付'
+								})
+							}
 						} else {
-							wx.showModal({
-								title: '提示',
-								showCancel: false,
-								content: '系统异常，无法支付'
-							})
-						}
+							if (res.data.code == "100" || res.data.success) {
+								//微信支付
+
+								wx.requestPayment({
+									'timeStamp': res.data.data.timeStamp,
+									'nonceStr': res.data.data.nonceStr,
+									'package': res.data.data.package,
+									'signType': res.data.data.signType,
+									'paySign': res.data.data.paySign,
+									success(res) {
+										wx.redirectTo({
+											url: that.navUrl + "?ordId=" + that.shopId
+										})
+									},
+									fail(res) {
+									}
+								})
+							} else {
+								wx.showModal({
+									title: '提示',
+									showCancel: false,
+									content: '系统异常，无法支付'
+								})
+							}
+					  	}
 					}
 				})
 			}
